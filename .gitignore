@@ -1,0 +1,14 @@
+node_modules
+.serverless
+dist
+.env
+.env.*
+google_service_account.json
+tag-tag-680e3-21e8179796d1.json
+private.pem
+public.pem
+tls.crt
+tls.key
+gopay-root-ca-production.crt
+midtrans-x-signature-private-key.pem
+midtrans-x-signature-public-key.pem

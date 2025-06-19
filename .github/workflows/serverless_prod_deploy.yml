@@ -1,0 +1,203 @@
+name: Serverless Prod Deploy
+
+on:
+  push:
+    branches:
+      - new_prod
+
+concurrency: 
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Reset master branch
+      run: |
+        git fetch --all
+        git reset --hard origin/new_prod
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build application
+      run: npm run build
+    
+    - name: Generate .env file
+      run: echo "${{ secrets.PROD_ENV_FILE }}" | base64 -d > .env.productions
+
+    - name: Generate config file
+      run: echo "${{ secrets.PROD_CONFIG_FILE }}" | base64 -d > config.json
+    
+    - name: Generate google service account file
+      run: echo "${{ secrets.PROD_GOOGLE_SERVICE_ACCOUNT }}" | base64 -d > google_service_account.json
+
+    - name: Generate FCM account file
+      run: echo "${{ secrets.DEV_FCM_FILE }}" | base64 -d > tag-tag-680e3-21e8179796d1.json
+    
+    - name: Generate private pem file
+      run: echo "${{ secrets.DEV_PEM_FILE }}" | base64 -d > private.pem
+
+    - name: Generate TLS Certificate file
+      run: echo "${{ secrets.TLS_CERTIFICATE }}" | base64 -d > tls.crt
+
+    - name: Generate TLS Key file
+      run: echo "${{ secrets.TLS_KEY }}" | base64 -d > tls.key
+
+    - name: Generate Gopay CA Certificate file
+      run: echo "${{ secrets.GOPAY_CA_CERTIFICATE }}" | base64 -d > gopay-root-ca-production.crt
+
+    - name: Generate Midtrans X Signature Private Key
+      run: echo "${{ secrets.PROD_MIDTRANS_X_SIGNATURE_PRIVATE_KEY }}" | base64 -d > midtrans-x-signature-private-key.pem
+
+    - name: Generate Midtrans X Signature Public Key
+      run: echo "${{ secrets.PROD_MIDTRANS_X_SIGNATURE_PUBLIC_KEY }}" | base64 -d > midtrans-x-signature-public-key.pem
+
+    - name: Deploying Serverless Apps
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: | 
+        npx serverless deploy --config ./serverless-app.yml --stage productions
+  deploy-queue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Reset master branch
+      run: |
+        git fetch --all
+        git reset --hard origin/new_prod
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build application
+      run: npm run build
+    
+    - name: Generate .env file
+      run: echo "${{ secrets.PROD_ENV_FILE }}" | base64 -d > .env.productions
+
+    - name: Generate config file
+      run: echo "${{ secrets.PROD_CONFIG_FILE }}" | base64 -d > config.json
+    
+    - name: Generate google service account file
+      run: echo "${{ secrets.PROD_GOOGLE_SERVICE_ACCOUNT }}" | base64 -d > google_service_account.json
+
+    - name: Generate FCM account file
+      run: echo "${{ secrets.DEV_FCM_FILE }}" | base64 -d > tag-tag-680e3-21e8179796d1.json
+    
+    - name: Generate private pem file
+      run: echo "${{ secrets.DEV_PEM_FILE }}" | base64 -d > private.pem
+
+    - name: Deploying Serverless Apps
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: | 
+        npx serverless deploy --config ./serverless-queue.yml --stage productions
+  deploy-scheduler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Reset master branch
+      run: |
+        git fetch --all
+        git reset --hard origin/new_prod
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build application
+      run: npm run build
+    
+    - name: Generate .env file
+      run: echo "${{ secrets.PROD_ENV_FILE }}" | base64 -d > .env.productions
+
+    - name: Generate config file
+      run: echo "${{ secrets.PROD_CONFIG_FILE }}" | base64 -d > config.json
+    
+    - name: Generate google service account file
+      run: echo "${{ secrets.PROD_GOOGLE_SERVICE_ACCOUNT }}" | base64 -d > google_service_account.json
+
+    - name: Generate FCM account file
+      run: echo "${{ secrets.DEV_FCM_FILE }}" | base64 -d > tag-tag-680e3-21e8179796d1.json
+    
+    - name: Generate private pem file
+      run: echo "${{ secrets.DEV_PEM_FILE }}" | base64 -d > private.pem
+
+    - name: Deploying Serverless Apps
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: | 
+        npx serverless deploy --config ./serverless-scheduler.yml --stage productions
+  deploy-admin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    - name: Reset master branch
+      run: |
+        git fetch --all
+        git reset --hard origin/new_prod
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build application
+      run: npm run build
+    
+    - name: Generate .env file
+      run: echo "${{ secrets.PROD_ENV_FILE }}" | base64 -d > .env.productions
+
+    - name: Generate config file
+      run: echo "${{ secrets.PROD_CONFIG_FILE }}" | base64 -d > config.json
+    
+    - name: Generate google service account file
+      run: echo "${{ secrets.PROD_GOOGLE_SERVICE_ACCOUNT }}" | base64 -d > google_service_account.json
+
+    - name: Generate FCM account file
+      run: echo "${{ secrets.DEV_FCM_FILE }}" | base64 -d > tag-tag-680e3-21e8179796d1.json
+    
+    - name: Generate private pem file
+      run: echo "${{ secrets.DEV_PEM_FILE }}" | base64 -d > private.pem
+
+    - name: Deploying Serverless Apps
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: | 
+        npx serverless deploy --config ./serverless-admin.yml --stage productions

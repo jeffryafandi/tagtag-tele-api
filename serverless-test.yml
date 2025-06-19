@@ -1,0 +1,102 @@
+service: tagtag-api-test
+
+provider:
+    name: aws
+    versionFunctions: false
+    runtime: nodejs18.x
+    stage: ${opt:stage,'dev'}
+    region: ap-southeast-1
+    timeout: 30
+    # profile: nomina
+    environment:
+        DB_CONNECTION: ${env:DB_CONNECTION}
+        DB_HOST: ${env:DB_HOST}
+        DB_PORT: ${env:DB_PORT}
+        DB_DATABASE: ${env:DB_DATABASE}
+        DB_USERNAME: ${env:DB_USERNAME}
+        DB_PASSWORD: ${env:DB_PASSWORD}
+    iam:
+        role:
+            statements:
+            -   Effect: Allow
+                Action:
+                    - sqs:SendMessage
+                Resource:
+                    - ${env:SQS_ARN}
+                    - ${env:SQS_RAFFLES_ARN}
+                    - ${env:SQS_NOTIFICATIONS_ARN}
+                    - ${env:SQS_MESSAGES_ARN}
+
+useDotenv: true
+functions:
+    ### TESTING
+    unifiedHandlerWithoutAuth:
+        handler: dist/routes.publicHandler
+        events:
+        - http:
+            path: /tests/notif
+            method: POST
+            cors: true
+        - http:
+            path: /test/receive-sns
+            method: POST
+            cors: true
+        - http:
+            path: /test/send-compute
+            method: POST
+            cors: true
+        - http:
+            path: /test/duitku/inquiry
+            method: POST
+            cors: true
+        - http:
+            path: /test/duitku/transfer
+            method: POST
+            cors: true
+        - http:
+            path: /test/midtrans/accountvalidation
+            method: GET
+            cors: true
+        - http:
+            path: /test/midtrans/createpayout
+            method: POST
+            cors: true
+        - http:
+            path: /test/midtrans/approvepayout
+            method: POST
+            cors: true
+        - http:
+            path: /test/raffle/queue
+            method: POST
+            cors: true
+        - http:
+            path: /test/awd/prepaid
+            method: POST
+            cors: true
+
+resources:
+    Resources:
+        GatewayResponseDefault4XX:
+            Type: 'AWS::ApiGateway::GatewayResponse'
+            Properties:
+                ResponseParameters:
+                    gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+                    gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+                ResponseType: DEFAULT_4XX
+                RestApiId:
+                    Ref: 'ApiGatewayRestApi'
+
+plugins:
+    - serverless-offline
+    - serverless-plugin-lambda-insights
+    - serverless-dotenv-plugin
+
+package:
+    patterns:
+        - google_service_account.json
+
+custom:
+    serverless-offline:
+        useChildProcesses: true
+    lambdaInsights:
+        defaultLambdaInsights: true

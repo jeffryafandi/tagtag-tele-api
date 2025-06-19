@@ -1,0 +1,266 @@
+service: tagtag-api-admin
+
+provider:
+    name: aws
+    versionFunctions: false
+    runtime: nodejs18.x
+    stage: ${opt:stage,'dev'}
+    region: ap-southeast-1
+    timeout: 30
+    # profile: nomina
+    environment:
+        DB_CONNECTION: ${env:DB_CONNECTION}
+        DB_HOST: ${env:DB_HOST}
+        DB_PORT: ${env:DB_PORT}
+        DB_DATABASE: ${env:DB_DATABASE}
+        DB_USERNAME: ${env:DB_USERNAME}
+        DB_PASSWORD: ${env:DB_PASSWORD}
+    iam:
+        role:
+            statements:
+            -   Effect: Allow
+                Action:
+                    - sqs:SendMessage
+                Resource:
+                    - ${env:SQS_ARN}
+                    - ${env:SQS_RAFFLES_ARN}
+                    - ${env:SQS_NOTIFICATIONS_ARN}
+                    - ${env:SQS_MESSAGES_ARN}
+
+useDotenv: true
+functions:
+    #### AUTH MODULES
+    adminAuthorizerFunc:
+        handler: dist/controllers/admin/auth.auth
+    ping:
+        handler: dist/controllers/admin/auth.ping
+        events:
+        - http:
+            path: /admin/ping
+            method: GET
+            cors: true
+    unifiedHandlerWithAuthAdmin:
+        handler: dist/routes.privateAdminHandler
+        events:
+        ### USER
+        - http:
+            path: /admin/users/{userId}
+            method: PUT
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        ## ADMIN
+        ## Lucky Wheels
+        - http:
+            path: /admin/lucky-wheels
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheels/{luckyWheelId}
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheels
+            method: POST
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheels/{luckyWheelId}
+            method: PUT
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheels/{luckyWheelId}
+            method: DELETE
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheels/{luckyWheelId}/add-prize
+            method: POST
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheel-prizes/{luckyWheelPrizeId}
+            method: PUT
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheel-prizes/{luckyWheelPrizeId}
+            method: DELETE
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/ban/user
+            method: POST
+            cors: true
+            authorizer: 
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/un-ban/user
+            method: POST
+            cors: true
+            authorizer: 
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/analytic/user
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/analytic/game
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/users
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/duitku-log/user
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/awd-log/user
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/partners
+            method: POST
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/transaction-log/user
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0              
+                type: token
+        - http:
+            path: /admin/partner/ads
+            method: POST
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/raffle-log-winners/user
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/users-revenue-detail
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/users-withdraw-detail
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheels-analytic
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /admin/lucky-wheels-log
+            method: GET
+            cors: true
+            authorizer:
+                name: adminAuthorizerFunc
+                resultTtlInSeconds: 0
+                type: token                                      
+
+resources:
+    Resources:
+        GatewayResponseDefault4XX:
+            Type: 'AWS::ApiGateway::GatewayResponse'
+            Properties:
+                ResponseParameters:
+                    gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+                    gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+                ResponseType: DEFAULT_4XX
+                RestApiId:
+                    Ref: 'ApiGatewayRestApi'
+
+plugins:
+    - serverless-offline
+    - serverless-plugin-lambda-insights
+    - serverless-dotenv-plugin
+
+package:
+    patterns:
+        - google_service_account.json
+
+custom:
+    serverless-offline:
+        useChildProcesses: true
+    lambdaInsights:
+        defaultLambdaInsights: true

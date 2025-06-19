@@ -1,0 +1,83 @@
+service: tagtag-api-queue
+
+provider:
+    name: aws
+    versionFunctions: false
+    runtime: nodejs18.x
+    stage: ${opt:stage,'dev'}
+    region: ap-southeast-1
+    timeout: 30
+    vpc: ${self:custom.vpcConfig.${self:provider.stage}, null}
+    # profile: nomina
+    environment:
+        DB_CONNECTION: ${env:DB_CONNECTION}
+        DB_HOST: ${env:DB_HOST}
+        DB_PORT: ${env:DB_PORT}
+        DB_DATABASE: ${env:DB_DATABASE}
+        DB_USERNAME: ${env:DB_USERNAME}
+        DB_PASSWORD: ${env:DB_PASSWORD}
+    iam:
+        role:
+            statements:
+            -   Effect: Allow
+                Action:
+                    - sqs:SendMessage
+                Resource:
+                    - ${env:SQS_ARN}
+                    - ${env:SQS_RAFFLES_ARN}
+                    - ${env:SQS_NOTIFICATIONS_ARN}
+                    - ${env:SQS_MESSAGES_ARN}
+
+useDotenv: true
+functions:
+    ### QUEUE
+    raffleTicketHandlerQueue:
+        handler: dist/controllers/queue.raffleTicketHandlerQueue
+        events:
+            - sqs: ${env:SQS_RAFFLES_ARN}
+    notificationHandlerQueue:
+        handler: dist/controllers/queue.notificationHandlerQueue
+        events:
+            - sqs: ${env:SQS_NOTIFICATIONS_ARN}
+    notifMessageHandlerQueue:
+        handler: dist/controllers/queue.notifMessageHandlerQueue
+        events:
+            - sqs: ${env:SQS_MESSAGES_ARN}
+    questHandlerQueue:
+        handler: dist/controllers/queue.questHandlerQueue
+        events:
+            - sqs: ${env:SQS_QUEST_ARN}
+
+# resources:
+#     Resources:
+#         GatewayResponseDefault4XX:
+#             Type: 'AWS::ApiGateway::GatewayResponse'
+#             Properties:
+#                 ResponseParameters:
+#                     gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+#                     gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+#                 ResponseType: DEFAULT_4XX
+#                 RestApiId:
+#                     Ref: 'ApiGatewayRestApi'
+
+plugins:
+    - serverless-offline
+    - serverless-plugin-lambda-insights
+    - serverless-dotenv-plugin
+
+package:
+    patterns:
+        - google_service_account.json
+
+custom:
+    vpcConfig:
+        dev: null # Empty for development (no VPC)
+        productions:
+            securityGroupIds: 
+                - sg-0698da92ffa115abe  # Replace with your actual security group
+            subnetIds: 
+                - subnet-0bd30b5cdcc1574e2  # Replace with your private subnet ID
+    serverless-offline:
+        useChildProcesses: true
+    lambdaInsights:
+        defaultLambdaInsights: true

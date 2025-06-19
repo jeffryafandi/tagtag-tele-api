@@ -1,0 +1,157 @@
+service: tagtag-api-scheduler
+
+provider:
+    name: aws
+    versionFunctions: false
+    runtime: nodejs18.x
+    stage: ${opt:stage,'dev'}
+    region: ap-southeast-1
+    vpc: ${self:custom.vpcConfig.${self:provider.stage}, null}
+    timeout: 30
+    # profile: nomina
+    environment:
+        DB_CONNECTION: ${env:DB_CONNECTION}
+        DB_HOST: ${env:DB_HOST}
+        DB_PORT: ${env:DB_PORT}
+        DB_DATABASE: ${env:DB_DATABASE}
+        DB_USERNAME: ${env:DB_USERNAME}
+        DB_PASSWORD: ${env:DB_PASSWORD}
+    iam:
+        role:
+            statements:
+            -   Effect: Allow
+                Action:
+                    - sqs:SendMessage
+                Resource:
+                    - ${env:SQS_ARN}
+                    - ${env:SQS_RAFFLES_ARN}
+                    - ${env:SQS_NOTIFICATIONS_ARN}
+                    - ${env:SQS_MESSAGES_ARN}
+
+useDotenv: true
+functions:
+    #### SCHEDULER
+    markDailyLogin:
+        handler: dist/controllers/scheduler.markDailyLogin
+        events:
+            - schedule: cron(0 17 * * ? *)
+    resetLuckyWheel:
+        handler: dist/controllers/scheduler.resetLuckyWheel
+        events:
+            - schedule: cron(0 17 * * ? *)
+    reassignQuest:
+        handler: dist/controllers/scheduler.reassignQuest
+        events:
+            - schedule: cron(0 17 * * ? *)
+            - http:
+                path: /reassign-quest
+                method: POST
+                cors: true
+    # disable, because it will be used in the resetMissionById
+    # refreshMission:
+    #     handler: dist/controllers/scheduler.refreshMission
+    #     events:
+    #         # - schedule: cron(0 17 * * ? *)
+    #         # diubah setiap jam 1 malem tapi exlude di hari senin biar ga bentrok sama resetMission
+    #         - schedule: cron(0 18 ? * 2-7 *)
+    calculatePrizepool:
+        handler: dist/controllers/scheduler.calculatePrizepool
+        events:
+            - schedule: cron(0 17 * * ? *)
+    calculateVipPrizepool:
+        handler: dist/controllers/scheduler.calculateVipPrizepool
+        events:
+            - schedule: cron(0 17 * * ? *)
+    sendingNotification:
+        handler: dist/controllers/scheduler.sendingNotification
+        events:
+            - schedule: cron(* * * * ? *)
+    checkUserActivity:
+        handler: dist/controllers/scheduler.checkUserActivity
+        events:
+            - schedule: cron(* * * * ? *)
+    checkRaffleStatus:
+        handler: dist/controllers/scheduler.checkRaffleStatus
+        events:
+            - schedule: cron(* * * * ? *)
+    # publishRevenueBaseline:
+    #     handler: dist/controllers/revenue.publishRevenueBaseline
+    #     events:
+    #         - schedule: cron(* * * * ? *)
+    expireUserBan:
+        handler: dist/controllers/scheduler.expireUserBan
+        events:
+            - schedule: cron(* * * * ? *)
+    generateMysteryBoxPrizes:
+        handler: dist/controllers/scheduler.generateMysteryBoxPrizes
+        events:
+            - schedule: cron(0 17 * * ? *)
+    validateStoreUserPurchase:
+        handler: dist/controllers/scheduler.validateStoreUserPurchase
+        events:
+            - schedule: cron(* * * * ? *)
+    backupUserQuests:
+        handler: dist/controllers/scheduler.backupUserQuests
+        events:
+            - schedule: cron(0 21 * * ? *)
+    resetMission:
+        handler: dist/controllers/scheduler.resetMission
+        events:
+            - schedule: cron(0 18 ? * 1 *)
+    backupRaffleTickets:
+        handler: dist/controllers/scheduler.backupRaffleTickets
+        events:
+            - schedule: cron(0 18-22 * * ? *)
+    redisSetTotalPools:
+        handler: dist/controllers/scheduler.redisSetTotalPools
+        events:
+            - schedule: cron(0/30 * * * ? *)
+    redisSetLeaderboardDaily:
+        handler: dist/controllers/scheduler.redisSetLeaderboardDaily
+        events:
+            - schedule: cron(0/30 * * * ? *)
+    redisSetLeaderboardWeekly:
+        handler: dist/controllers/scheduler.redisSetLeaderboardWeekly
+        events:
+            - schedule: cron(0/30 * * * ? *)
+    redisSetWinnersData:
+        handler: dist/controllers/scheduler.redisSetWinnersData
+        events:
+            - schedule: cron(0 18 * * ? *)
+    # resetStamina:
+    #     handler: dist/controllers/scheduler.resetStamina
+    #     events:
+    #         - schedule: cron(0 0 * * ? *)
+# resources:
+#     Resources:
+#         GatewayResponseDefault4XX:
+#             Type: 'AWS::ApiGateway::GatewayResponse'
+#             Properties:
+#                 ResponseParameters:
+#                     gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+#                     gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+#                 ResponseType: DEFAULT_4XX
+#                 RestApiId:
+#                     Ref: 'ApiGatewayRestApi'
+
+plugins:
+    - serverless-offline
+    - serverless-plugin-lambda-insights
+    - serverless-dotenv-plugin
+
+package:
+    patterns:
+        - google_service_account.json
+
+custom:
+    vpcConfig:
+        dev: null  # Empty for development (no VPC)
+        productions:
+            securityGroupIds: 
+                - sg-0698da92ffa115abe  # Replace with your actual security group
+            subnetIds: 
+                - subnet-0bd30b5cdcc1574e2  # Replace with your private subnet ID
+    serverless-offline:
+        useChildProcesses: true
+    lambdaInsights:
+        defaultLambdaInsights: true

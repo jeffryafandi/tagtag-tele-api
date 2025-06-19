@@ -1,0 +1,285 @@
+name: NominaOps VPS Deploy
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - staging
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to deploy"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+      restart_services:
+        description: "Restart services after deployment"
+        required: false
+        default: true
+        type: boolean
+
+concurrency:
+  group: deploy-vps-${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    environment: ${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Run tests (if available)
+        run: npm test --if-present
+        continue-on-error: true
+
+      - name: Generate environment file
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}"
+          if [ "$ENVIRONMENT" == "staging" ]; then
+            echo "${{ secrets.STAGING_ENV_FILE }}" | base64 -d > .env
+          else
+            echo "${{ secrets.PROD_ENV_FILE }}" | base64 -d > .env
+          fi
+
+      - name: Generate service account files
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}"
+          if [ "$ENVIRONMENT" == "staging" ]; then
+            echo "${{ secrets.STAGING_GOOGLE_SERVICE_ACCOUNT }}" | base64 -d > google_service_account.json
+          else
+            echo "${{ secrets.PROD_GOOGLE_SERVICE_ACCOUNT }}" | base64 -d > google_service_account.json
+          fi
+
+      - name: Create backup
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || github.workspace }}
+          ENVIRONMENT: ${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}
+        run: |
+          set -e
+
+          # Set backup path
+          BACKUP_PATH="${DEPLOY_PATH}_backup_$(date +%Y%m%d_%H%M%S)"
+
+          echo "🚀 Starting deployment to $ENVIRONMENT environment..."
+
+          # Create backup of current deployment if it exists and is different from workspace
+          if [ -d "$DEPLOY_PATH" ] && [ "$DEPLOY_PATH" != "${{ github.workspace }}" ]; then
+            echo "📦 Creating backup..."
+            cp -r "$DEPLOY_PATH" "$BACKUP_PATH"
+          fi
+
+          echo "BACKUP_PATH=$BACKUP_PATH" >> $GITHUB_ENV
+
+      - name: Deploy application
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || github.workspace }}
+          ENVIRONMENT: ${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}
+        run: |
+          set -e
+
+          # If deployment path is different from workspace, copy files
+          if [ "$DEPLOY_PATH" != "${{ github.workspace }}" ]; then
+            echo "📥 Copying files to deployment directory..."
+            
+            # Create deployment directory if it doesn't exist
+            mkdir -p "$DEPLOY_PATH"
+            
+            # Copy built application (excluding unnecessary files)
+            rsync -av --delete \
+              --exclude='.git' \
+              --exclude='node_modules' \
+              --exclude='.github' \
+              --exclude='*.md' \
+              --exclude='buildspec*.yaml' \
+              --exclude='serverless*.yml' \
+              --exclude='todo' \
+              --exclude='.env*' \
+              "${{ github.workspace }}/" "$DEPLOY_PATH/"
+            
+            # Change to deployment directory
+            cd "$DEPLOY_PATH"
+            
+            # Install/update dependencies in deployment directory
+            echo "📦 Installing dependencies in deployment directory..."
+            npm ci --production
+          else
+            echo "📦 Using workspace as deployment directory..."
+          fi
+
+          # Set proper permissions
+          chmod +x node_modules/.bin/* 2>/dev/null || true
+
+          # Copy environment file
+          if [ -f "${{ github.workspace }}/.env" ]; then
+            cp "${{ github.workspace }}/.env" "${DEPLOY_PATH}/.env"
+          fi
+
+          # Create logs directory
+          mkdir -p "${DEPLOY_PATH}/logs"
+
+          echo "✅ Deployment completed successfully!"
+
+      - name: Restart services
+        if: ${{ github.event.inputs.restart_services != 'false' }}
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || github.workspace }}
+          ENVIRONMENT: ${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}
+        run: |
+          set -e
+
+          echo "🔄 Restarting services..."
+
+          # Change to deployment directory
+          cd "$DEPLOY_PATH"
+
+          # Determine PM2 app name based on environment
+          if [ "$ENVIRONMENT" == "staging" ]; then
+            PM2_APP_NAME="${{ secrets.STAGING_PM2_APP_NAME || 'tagtag-api-staging' }}"
+            PM2_ENV="staging"
+          else
+            PM2_APP_NAME="${{ secrets.PM2_APP_NAME || 'tagtag-api' }}"
+            PM2_ENV="production"
+          fi
+
+          # Restart PM2 application
+          if pm2 describe "$PM2_APP_NAME" > /dev/null 2>&1; then
+            echo "🔄 Restarting PM2 application: $PM2_APP_NAME"
+            pm2 restart "$PM2_APP_NAME"
+            pm2 save
+          else
+            echo "🚀 Starting PM2 application: $PM2_APP_NAME"
+            if [ "$ENVIRONMENT" == "staging" ]; then
+              pm2 start ecosystem.config.js --only tagtag-api-staging
+            else
+              pm2 start ecosystem.config.js --only tagtag-api --env production
+            fi
+            pm2 save
+          fi
+
+          # Restart Nginx if configured and available
+          if command -v systemctl > /dev/null && systemctl is-active --quiet nginx 2>/dev/null; then
+            echo "🔄 Reloading Nginx..."
+            sudo systemctl reload nginx
+          fi
+
+          echo "✅ Services restarted successfully!"
+
+      - name: Health check
+        env:
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH || github.workspace }}
+          ENVIRONMENT: ${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}
+        run: |
+          echo "🔍 Performing health check..."
+
+          # Wait for application to start
+          sleep 30
+
+          # Determine PM2 app name and health check URL based on environment
+          if [ "$ENVIRONMENT" == "staging" ]; then
+            PM2_APP_NAME="${{ secrets.STAGING_PM2_APP_NAME || 'tagtag-api-staging' }}"
+            HEALTH_CHECK_URL="${{ secrets.STAGING_HEALTH_CHECK_URL || secrets.HEALTH_CHECK_URL }}"
+          else
+            PM2_APP_NAME="${{ secrets.PM2_APP_NAME || 'tagtag-api' }}"
+            HEALTH_CHECK_URL="${{ secrets.HEALTH_CHECK_URL }}"
+          fi
+
+          # Check if PM2 process is running
+          if pm2 describe "$PM2_APP_NAME" > /dev/null 2>&1; then
+            echo "✅ PM2 process is running: $PM2_APP_NAME"
+            pm2 status "$PM2_APP_NAME"
+          else
+            echo "❌ PM2 process not found: $PM2_APP_NAME"
+            pm2 status
+            exit 1
+          fi
+
+          # Check HTTP endpoint if URL is provided
+          if [ -n "$HEALTH_CHECK_URL" ]; then
+            echo "🌐 Checking HTTP endpoint..."
+            for i in {1..5}; do
+              if curl -f -s "$HEALTH_CHECK_URL" > /dev/null; then
+                echo "✅ Health check passed!"
+                break
+              else
+                echo "⏳ Attempt $i/5 failed, retrying in 10s..."
+                sleep 10
+              fi
+              
+              if [ $i -eq 5 ]; then
+                echo "❌ Health check failed after 5 attempts"
+                exit 1
+              fi
+            done
+          fi
+
+      - name: Cleanup
+        if: always()
+        run: |
+          # Remove temporary files
+          rm -f deployment.tar.gz google_service_account.json || true
+
+          echo "🧹 Cleanup completed"
+
+      - name: Notify deployment status
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # Determine status
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="✅ SUCCESS"
+            COLOR="good"
+          else
+            STATUS="❌ FAILED"
+            COLOR="danger"
+          fi
+
+          ENVIRONMENT="${{ github.event.inputs.environment || (github.ref_name == 'staging' && 'staging') || 'production' }}"
+          MESSAGE="🚀 *TagTag API Deployment*\n\n*Environment:* $ENVIRONMENT\n*Status:* $STATUS\n*Branch:* ${{ github.ref_name }}\n*Commit:* ${{ github.sha }}\n*Author:* ${{ github.actor }}"
+
+          # Send Slack notification
+          if [ -n "$SLACK_WEBHOOK" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{'text':'$MESSAGE','color':'$COLOR'}" \
+              "$SLACK_WEBHOOK" || true
+          fi
+
+          # Send Discord notification
+          if [ -n "$DISCORD_WEBHOOK" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data "{'content':'$MESSAGE'}" \
+              "$DISCORD_WEBHOOK" || true
+          fi
+
+          # Send Telegram notification
+          if [ -n "$TELEGRAM_BOT_TOKEN" ] && [ -n "$TELEGRAM_CHAT_ID" ]; then
+            curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+              -d "chat_id=$TELEGRAM_CHAT_ID" \
+              -d "text=$MESSAGE" \
+              -d "parse_mode=Markdown" || true
+          fi

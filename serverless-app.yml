@@ -1,0 +1,922 @@
+service: tagtag-api
+
+provider:
+    name: aws
+    versionFunctions: false
+    runtime: nodejs18.x
+    stage: ${opt:stage,'dev'}
+    region: ap-southeast-1
+    vpc: ${self:custom.vpcConfig.${self:provider.stage}, null}
+    timeout: 30
+    # profile: nomina
+    environment:
+        DB_CONNECTION: ${env:DB_CONNECTION}
+        DB_HOST: ${env:DB_HOST}
+        DB_PORT: ${env:DB_PORT}
+        DB_DATABASE: ${env:DB_DATABASE}
+        DB_USERNAME: ${env:DB_USERNAME}
+        DB_PASSWORD: ${env:DB_PASSWORD}
+    iam:
+        role:
+            statements:
+            -   Effect: Allow
+                Action:
+                    - sqs:SendMessage
+                Resource:
+                    - ${env:SQS_ARN}
+                    - ${env:SQS_RAFFLES_ARN}
+                    - ${env:SQS_NOTIFICATIONS_ARN}
+                    - ${env:SQS_MESSAGES_ARN}
+
+useDotenv: true
+functions:
+    #### AUTH MODULES
+    notFound:
+        handler: dist/controllers/auth.notFound
+        events:
+            - http:
+                path: /
+                method: any
+            - http:
+                path: "{proxy+}"
+                method: any
+    # testStaticIp:
+    #     handler: dist/controllers/auth.testIp
+    #     events:
+    #         - http:
+    #             path: 
+    authorizerFunc:
+        handler: dist/controllers/auth.auth
+    unifiedHandlerWithAuth:
+        handler: dist/routes.privateHandler
+        events:
+        - http:
+            path: /auths/forgot-password
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths
+            method: GET
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/transactions
+            method: GET
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/affiliate
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/withdraw/{platform}
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/account-validation/gopay
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        # - http:
+        #     path: /auths/withdraw/gopay
+        #     method: POST
+        #     cors: true
+        #     authorizer: 
+        #         name: authorizerFunc
+        #         resultTtlInSeconds: 0
+        #         type: token
+        # - http:
+        #     path: /auths/summary/gopay
+        #     method: POST
+        #     cors: true
+        #     authorizer: 
+        #         name: authorizerFunc
+        #         resultTtlInSeconds: 0
+        #         type: token
+        - http:
+            path: /auths/summary/{type}
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/affiliate
+            method: GET
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/logout
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/commissions
+            method: GET
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/bank-account
+            method: GET
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/bank-account
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/prizes
+            method: GET
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/prizes/{userExtPrizeId}/claim
+            method: PUT
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/verifications
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/friends
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/friends/search
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/friends/add
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/friends/reject
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/friends/approve
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/friends/remove
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/add-pin/{action}
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/forgot-pin/{action}
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/pin/{action}
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### HOME MODULES
+        - http:
+            path: /home/{dataType}
+            method: GET
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /lucky-wheels/reset-entries
+            method: POST
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### CLAIM ROUTES
+        - http:
+            path: /daily-logins/claim
+            method: PUT
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /referrals/claim
+            method: PUT
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### AFFILIATES
+        - http:
+            path: /affiliates/upgrade/{affiliateUpgradeId}/status
+            method: PUT
+            cors: true
+            authorizer: 
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### MISSIONS
+        - http:
+            path: /missions/{missionId}/status
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /missions/{missionId}/{action}
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /missions/{missionId}/start
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /missions/{missionId}/ad-mission-view-confirmation
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /missions/{missionId}/reset
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### QUESTS
+        - http:
+            path: /quests/{questId}/status
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /quests/claim-completion
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /quests/{questId}/finish
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /quests/{questId}/start
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /quests/{questId}/ad-quest-view-confirmation
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### FREEPLAY
+        - http:
+            path: /freeplay/{gameId}/finish
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### ADS LOGS
+        - http:
+            path: /ads/log
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### IN APP PURCHASE
+        - http:
+            path: /in-app-purchases/products
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /in-app-purchases
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /in-app-purchases/{token}/status
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### RAFFLES
+        - http:
+            path: /raffles
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /raffles/{raffleId}
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /raffles/{raffleId}/submit
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        ### PRIZEPOOLS
+        - http:
+            path: /prizepools/histories
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /prizepools
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /prizepools/{prizepoolId}/winners
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        ### GAMES
+        - http:
+            path: /games/{gameId}/score
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        ### OPERATORS
+        - http:
+            path: /operators/check
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /operators/purchase
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        ### Partner
+        - http:
+            path: /partner/ads
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        # Mystery Boxes
+        - http:
+            path: /mystery-box/claim
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /auths/username/change
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /in-app-purchases/create-payment
+            method: POST
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### REWARDED ADS
+        - http:
+            path: /rewarded-ads
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /rewarded-ads/{rewardedAdsId}/finish
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        #### VIP MODULES
+        - http:
+            path: /vip/quests
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /vip/quests/{questId}/finish
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /vip/rewards
+            method: GET
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        - http:
+            path: /vip/rewards/{vipRewardId}/finish
+            method: PUT
+            cors: true
+            authorizer:
+                name: authorizerFunc
+                resultTtlInSeconds: 0
+                type: token
+        # - http:
+        #     path: /missions/{missionId}/claim-completion
+        #     method: PUT
+        #     cors: true
+        #     authorizer:
+        #         name: authorizerFunc
+        #         resultTtlInSeconds: 0
+        #         type: token
+        # - http:
+        #     path: /missions/{missionId}/finish
+        #     method: PUT
+        #     cors: true
+        #     authorizer:
+        #         name: authorizerFunc
+        #         resultTtlInSeconds: 0
+        #         type: token
+        # - http:
+        #     path: /auths/withdraw/e-wallet
+        #     method: PUT
+        #     cors: true
+        #     authorizer: 
+        #         name: authorizerFunc
+        #         resultTtlInSeconds: 0
+        #         type: token
+        # - http:
+        #     path: /auths/withdraw/bank
+        #     method: PUT
+        #     cors: true
+        #     authorizer: 
+        #         name: authorizerFunc
+        #         resultTtlInSeconds: 0
+        #         type: token
+    unifiedHandlerWithoutAuth:
+        handler: dist/routes.publicHandler
+        events:
+        - http:
+            path: /auths/register
+            method: POST
+            cors: true
+        - http:
+            path: /auths/register/{action}
+            method: POST
+            cors: true
+        - http:
+            path: /testing/ip
+            method: GET
+            cors: true
+        # - http:
+        #     path: /auths/register/resend
+        #     method: POST
+        #     cors: true
+        # - http:
+        #     path: /auths/register/confirm
+        #     method: POST
+        #     cors: true
+        - http:
+            path: /auths/login
+            method: POST
+            cors: true
+        - http:
+            path: /auths/login/google
+            method: POST
+            cors: true
+        - http:
+            path: /auths/change-password/request
+            method: PUT
+            cors: true
+        - http:
+            path: /auths/forgot-password
+            method: GET
+            cors: true
+        - http:
+            path: /auths/forgot-password/request
+            method: POST
+            cors: true
+        - http:
+            path: /auths/forgotPassword/check
+            method: POST
+            cors: true
+        - http:
+            path: /auths/change-password
+            method: POST
+            cors: true
+        - http:
+            path: /auths/change-email/request
+            method: PUT
+            cors: true
+        - http:
+            path: /auths/change-email/confirm
+            method: PUT
+            cors: true
+        - http:
+            path: /auths/check-username
+            method: POST
+            cors: true
+        - http:
+            path: /auths/check-email
+            method: POST
+            cors: true
+        - http:
+            path: /auths/my-team
+            method: GET
+            cors: true
+        #### HOME MODULES
+        - http:
+            path: /home/banners
+            method: GET
+            cors: true
+        #### LUCKY WHEELS
+        - http:
+            path: /lucky-wheels
+            method: GET
+            cors: true
+        - http:
+            path: /lucky-wheels/spin
+            method: PUT
+            cors: true
+        #### AFFILIATES
+        - http:
+            path: /affiliates/benefits
+            method: GET
+            cors: true
+        - http:
+            path: /auths/affiliate/upgrade
+            method: POST
+            cors: true
+        - http:
+            path: /affiliates/upgrade/approved
+            method: GET
+            cors: true
+        ### REVENUE
+        - http:
+            path: /revenue-baselines
+            method: POST
+            cors: true
+        - http:
+            path: /revenue-baselines/publish
+            method: POST
+            cors: true
+        #### SCHEDULER
+        - http:
+            path: /schedular/mark-daily-logins
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/refresh-lucky-wheel-entries
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/refresh-quest-assignments
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/refresh-mission-assignments
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/calculate-prizepools
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/send-notification
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/check-user-activities
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/check-raffle-status
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/expiring-user-ban
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/generate-mystery-boxes
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/validateStoreUserPurchase
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/reset-mission-assignments
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/redis-set-winners-data
+            method: POST
+            cors: true
+        - http:
+            path: /schedular/reassign-quest-preset
+            method: POST
+            cors: true
+        # - http:
+        #     path: /schedular/reset-stamina
+        #     method: POST
+        #     cors: true
+        ### PRIZEPOOLS
+        - http:
+            path: /prizepools
+            method: POST
+            cors: true
+        - http:
+            path: /prizepools/leaderboard/{type}
+            method: GET
+            cors: true
+        ### GAMES
+        - http:
+            path: /games/{gameId}/tutorials
+            method: GET
+            cors: true
+        ### TESTING
+        - http:
+            path: /tests/notif
+            method: POST
+            cors: true
+        - http:
+            path: /test/receive-sns
+            method: POST
+            cors: true
+        - http:
+            path: /test/send-compute
+            method: POST
+            cors: true
+        - http:
+            path: /test/duitku/inquiry
+            method: POST
+            cors: true
+        - http:
+            path: /test/duitku/transfer
+            method: POST
+            cors: true
+        - http:
+            path: /test/midtrans/accountvalidation
+            method: GET
+            cors: true
+        - http:
+            path: /test/midtrans/createpayout
+            method: POST
+            cors: true
+        - http:
+            path: /test/midtrans/approvepayout
+            method: POST
+            cors: true
+        - http:
+            path: /test/raffle/queue
+            method: POST
+            cors: true
+        - http:
+            path: /test/awd/prepaid
+            method: POST
+            cors: true
+        ### BANKS
+        - http:
+            path: /banks
+            method: GET
+            cors: true
+        - http:
+            path: /banks/check-account
+            method: POST
+            cors: true
+        ### OPERATORS
+        - http:
+            path: /operators
+            method: GET
+            cors: true
+        ### USER VERIFICATIONS
+        - http:
+            path: /user-verifications/{verificationId}/status
+            method: PUT
+            cors: true
+        ## APP CONFIGS
+        - http:
+            path: /app-configs
+            method: GET
+            cors: true
+        ## WEBHOOKS
+        - http:
+            path: /awd/webhook
+            method: GET
+            cors: true
+        - http:
+            path: /testinvoke
+            method: GET
+            cors: true
+        - http:
+            path: /auths/login/gopay
+            method: POST
+            cors: true
+        - http:
+            path: /aris/tekuton
+            method: GET
+            cors: true
+        - http:
+            path: /v1.0/debit/notify
+            method: POST
+            cors: true
+
+resources:
+    Resources:
+        GatewayResponseDefault4XX:
+            Type: 'AWS::ApiGateway::GatewayResponse'
+            Properties:
+                ResponseParameters:
+                    gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+                    gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent,Cache-Control,X-Device-Platform,x-device-platform,X-DEVICE-PLATFORM,X-App-Version-Code,x-app-version-code,X-APP-VERSION-CODE,X-API-Secret,x-api-secret,X-API-SECRET'"
+                ResponseType: DEFAULT_4XX
+                RestApiId:
+                    Ref: 'ApiGatewayRestApi'
+
+plugins:
+    - serverless-offline
+    - serverless-plugin-lambda-insights
+    - serverless-dotenv-plugin
+
+package:
+    patterns:
+        - google_service_account.json
+
+custom:
+    vpcConfig:
+        dev: null  # Empty for development (no VPC)
+        productions:
+            securityGroupIds: 
+                - sg-0698da92ffa115abe  # Replace with your actual security group
+            subnetIds: 
+                - subnet-0bd30b5cdcc1574e2  # Replace with your private subnet ID
+    serverless-offline:
+        useChildProcesses: true
+    lambdaInsights:
+        defaultLambdaInsights: true
