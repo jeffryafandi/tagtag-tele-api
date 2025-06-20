@@ -13,12 +13,28 @@ CREATE TABLE `users` (
   `otp_token` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `avatar` int DEFAULT '1',
   `coupons` int NOT NULL DEFAULT '0',
+  `activity_points` int NOT NULL DEFAULT '0',
   `coins` int NOT NULL DEFAULT '0',
   `is_confirmed` tinyint DEFAULT '0',
   `confirm_otp_token` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `change_email_otp_token` VARCHAR(255) NULL DEFAULT NULL,
+  `temp_change_email` VARCHAR(255) NULL DEFAULT NULL,
   `reset_password_token` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `lucky_wheel_spin_entries` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_active` tinyint DEFAULT '0',
+  `referred_user_id` INT NULL DEFAULT NULL,
+  `user_verification_id` INT NULL DEFAULT NULL,
+  `user_pin_id` INT NULL DEFAULT NULL,
+  `withdrawable_amount` FLOAT NOT NULL DEFAULT '0',
+  `complete_quest_claimed` TINYINT(1) NOT NULL DEFAULT '0',
+  `can_claim_mystery_box` TINYINT(1) NOT NULL DEFAULT '0',
+  `gopay_number` VARCHAR(255) NULL DEFAULT NULL,
+  `stamina` INT NOT NULL DEFAULT '0',
+  `free_ads_until` TIMESTAMP NULL DEFAULT NULL,
+  `free_ads_product_name` VARCHAR(255) NULL DEFAULT NULL,
+  `gopay_id` VARCHAR(255) NULL DEFAULT NULL,
+  `vip` TINYINT(1) NOT NULL DEFAULT '0',
+  `vip_points` INT NOT NULL DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
@@ -35,10 +51,10 @@ CREATE TABLE `user_game_inventories` (
   `inventory_id` bigint unsigned NOT NULL,
   `quantity` int DEFAULT '0',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
 -- tagtag.game_inventories definition
@@ -320,3 +336,17 @@ CREATE TABLE `affiliate_benefit_tierings` (
   `deleted_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- tagtag.user_bans definition
+
+CREATE TABLE `user_bans` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `ban_reason` varchar(255) NOT NULL,
+  `is_expired` tinyint(1) NOT NULL,
+  `expired_in` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

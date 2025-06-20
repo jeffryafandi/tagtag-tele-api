@@ -269,7 +269,9 @@ export const register: lambda.Handler = async (
     return ResponseService.baseResponseJson(422, validate.message, null);
   }
 
-  const validateRegistration = await authService.validateRegistration(parsedBody);
+  const validateRegistration = await authService.validateRegistration(
+    parsedBody
+  );
   if (validateRegistration == -1) {
     return ResponseService.baseResponseJson(
       422,
@@ -572,10 +574,11 @@ const confirmRegistration: lambda.Handler = async (
   }
 
   // Validate Registration Confirmation
-  const validateRegistration = await authService.validateRegistrationConfirmation(
-    user,
-    parsedBody.confirm_otp_token
-  );
+  const validateRegistration =
+    await authService.validateRegistrationConfirmation(
+      user,
+      parsedBody.confirm_otp_token
+    );
   if (validateRegistration == -1) {
     return ResponseService.baseResponseJson(422, "OTP Token is invalid", null);
   }
@@ -3346,7 +3349,8 @@ export const loginWithTelegram: lambda.Handler = async (
   let user: Users | null;
 
   try {
-    const queryParams = new URLSearchParams(parsedBody.tgWebAppData);
+    const decodedTgWebAppData = decodeURIComponent(parsedBody.tgWebAppData);
+    const queryParams = new URLSearchParams(decodedTgWebAppData);
     const userStr = queryParams.get("user");
     const hash = queryParams.get("hash");
 
