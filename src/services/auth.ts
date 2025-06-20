@@ -563,43 +563,40 @@ export class AuthService {
     botToken: string
   ): { isValid: boolean; userData?: any } {
     try {
-      const params = new URLSearchParams(initData);
-
-      const hashFromTelegram = params.get("hash");
-      if (!hashFromTelegram) {
+      // Extract hash from the init data
+      const hashMatch = initData.match(/hash=([^&]+)/);
+      if (!hashMatch) {
         return { isValid: false };
       }
+      const hashFromTelegram = hashMatch[1];
 
-      params.delete("hash");
-
-      const authDate = params.get("auth_date");
-      if (authDate) {
-        const authTimestamp = parseInt(authDate, 10) * 1000;
+      // Check auth_date for expiration (24 hours)
+      const authDateMatch = initData.match(/auth_date=([^&]+)/);
+      if (authDateMatch) {
+        const authTimestamp = parseInt(authDateMatch[1], 10) * 1000;
         if (Date.now() - authTimestamp > 24 * 60 * 60 * 1000) {
           return { isValid: false }; // Data is older than 24 hours
         }
       }
 
-      // Convert URLSearchParams to array and sort alphabetically by key
-      const dataCheckArr: string[] = [];
-      const sortedParams = Array.from(params.entries()).sort((a, b) =>
-        a[0].localeCompare(b[0])
+      // Parse and sort the init data according to Telegram's specification
+      const sortedData = initData
+        .split("&")
+        .filter((chunk) => !chunk.startsWith("hash="))
+        .map((chunk) => chunk.split("="))
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([key, value]) => `${key}=${decodeURIComponent(value)}`)
+        .join("\n");
+
+      // Create secret key
+      const secretKey = new Uint8Array(
+        crypto.createHmac("sha256", "WebAppData").update(botToken).digest()
       );
 
-      for (const [key, value] of sortedParams) {
-        dataCheckArr.push(`${key}=${value}`);
-      }
-
-      const dataCheckString = dataCheckArr.join("\n");
-
-      const secretKey = crypto
-        .createHmac("sha256", "WebAppData")
-        .update(botToken)
-        .digest();
-
+      // Generate the data check hash
       const calculatedHash = crypto
-        .createHmac("sha256", secretKey)
-        .update(dataCheckString)
+        .createHmac("sha256", new Uint8Array(secretKey))
+        .update(sortedData)
         .digest("hex");
 
       const isValid = calculatedHash === hashFromTelegram;
@@ -607,15 +604,17 @@ export class AuthService {
         console.log("Hash validation failed:");
         console.log("Expected:", hashFromTelegram);
         console.log("Calculated:", calculatedHash);
-        console.log("Data check string:", dataCheckString);
+        console.log("Sorted data:", sortedData);
         return { isValid: false };
       }
 
-      const userParam = params.get("user");
-      if (!userParam) {
+      // Extract and parse user data
+      const userMatch = initData.match(/user=([^&]+)/);
+      if (!userMatch) {
         return { isValid: false };
       }
 
+      const userParam = decodeURIComponent(userMatch[1]);
       const userData = JSON.parse(userParam);
       return { isValid: true, userData };
     } catch (error) {
