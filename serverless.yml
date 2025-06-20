@@ -47,24 +47,7 @@ functions:
       DB_DATABASE: ${env:DB_DATABASE}
       DB_USERNAME: ${env:DB_USERNAME}
       DB_PASSWORD: ${env:DB_PASSWORD}
-      REDIS_HOST: ${env:REDIS_HOST}
-      REDIS_PORT: ${env:REDIS_PORT}
-      REDIS_PASS: ${env:REDIS_PASS}
-      X_API_SECRET: ${env:X_API_SECRET}
-      PUSHER_APP_ID: ${env:PUSHER_APP_ID}
-      PUSHER_KEY: ${env:PUSHER_KEY}
-      PUSHER_SECRET: ${env:PUSHER_SECRET}
-      PUSHER_CLUSTER: ${env:PUSHER_CLUSTER}
-      AWS_S3_REGION: ${env:AWS_S3_REGION}
-      AWS_S3_ACCESS_KEY: ${env:AWS_S3_ACCESS_KEY}
-      AWS_S3_SECRET_KEY: ${env:AWS_S3_SECRET_KEY}
-      AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
-      BASE_API_URL: ${env:BASE_API_URL}
-      HOOK_TOKEN: ${env:HOOK_TOKEN}
-      IS_OFFLINE: true
-      MAILGUN_API_DOMAIN: ${env:MAILGUN_API_DOMAIN}
-      MAILGUN_API_KEY: ${env:MAILGUN_API_KEY}
-      MAILGUN_DOMAIN_NAME: ${env:MAILGUN_DOMAIN_NAME}
+ 
   adminAuthorizerFunc:
     handler: dist/controllers/admin/auth.auth
     environment:
@@ -74,24 +57,7 @@ functions:
       DB_DATABASE: ${env:DB_DATABASE}
       DB_USERNAME: ${env:DB_USERNAME}
       DB_PASSWORD: ${env:DB_PASSWORD}
-      REDIS_HOST: ${env:REDIS_HOST}
-      REDIS_PORT: ${env:REDIS_PORT}
-      REDIS_PASS: ${env:REDIS_PASS}
-      X_API_SECRET: ${env:X_API_SECRET}
-      PUSHER_APP_ID: ${env:PUSHER_APP_ID}
-      PUSHER_KEY: ${env:PUSHER_KEY}
-      PUSHER_SECRET: ${env:PUSHER_SECRET}
-      PUSHER_CLUSTER: ${env:PUSHER_CLUSTER}
-      AWS_S3_REGION: ${env:AWS_S3_REGION}
-      AWS_S3_ACCESS_KEY: ${env:AWS_S3_ACCESS_KEY}
-      AWS_S3_SECRET_KEY: ${env:AWS_S3_SECRET_KEY}
-      AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
-      BASE_API_URL: ${env:BASE_API_URL}
-      HOOK_TOKEN: ${env:HOOK_TOKEN}
-      IS_OFFLINE: true
-      MAILGUN_API_DOMAIN: ${env:MAILGUN_API_DOMAIN}
-      MAILGUN_API_KEY: ${env:MAILGUN_API_KEY}
-      MAILGUN_DOMAIN_NAME: ${env:MAILGUN_DOMAIN_NAME}
+
   unifiedHandlerWithAuthAdmin:
     handler: dist/routes.privateAdminHandler
     events:
