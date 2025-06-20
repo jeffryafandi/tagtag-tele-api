@@ -189,7 +189,7 @@ export class Database {
     ];
     this.connectionConfig = {
       name: "default",
-      type: "mysql",
+      type: "mysql2",
       port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
       synchronize: false,
       logging: false,
@@ -207,7 +207,7 @@ export class Database {
       },
       cache: true,
       entities: this.entities,
-    };
+    } as any;
   }
 
   public async injectOptions(
