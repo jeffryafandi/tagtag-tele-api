@@ -3349,18 +3349,15 @@ export const loginWithTelegram: lambda.Handler = async (
   let user: Users | null;
 
   try {
-    const telegramData = Object.fromEntries(
-      new URLSearchParams(parsedBody.tgWebAppData)
+    const { hash, ...data } = authService.getTelegramData(
+      parsedBody.tgWebAppData
     );
 
-    const hash = telegramData.hash;
-    delete telegramData.hash;
-
-    if (!authService.validateTelegramHash(hash, telegramData)) {
+    if (!authService.validateTelegramHash(hash, data)) {
       return ResponseService.baseResponseJson(403, "Invalid hash", null);
     }
 
-    const userData = JSON.parse(telegramData.user);
+    const userData = JSON.parse(data.user);
 
     user = await authService.getUserByTelegramId(userData.id);
     let isFirstLogin = false;

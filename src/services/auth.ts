@@ -558,6 +558,10 @@ export class AuthService {
       .findOne({ where: { telegram_id: `${telegramId}` } });
   }
 
+  public getTelegramData(tgWebAppData: string): Record<string, string> {
+    return Object.fromEntries(new URLSearchParams(tgWebAppData));
+  }
+
   public validateTelegramHash(
     hash: string,
     data: Record<string, any>
