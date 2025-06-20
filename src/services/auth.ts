@@ -562,29 +562,28 @@ export class AuthService {
     initData: string,
     botToken: string
   ): { isValid: boolean; userData?: any } {
-    let hashFromTelegram = "";
-    const params: Record<string, string> = {};
-
-    for (const pair of initData.split("&")) {
-      const parts = pair.split("=");
-      const key = parts[0];
-      const value = decodeURIComponent(parts.slice(1).join("="));
-
-      if (key === "hash") {
-        hashFromTelegram = value;
-        continue;
-      }
-      params[key] = value;
-    }
-
+    const params = new URLSearchParams(initData);
+    const hashFromTelegram = params.get("hash");
     if (!hashFromTelegram) {
       return { isValid: false };
     }
+    params.delete("hash");
 
-    const dataCheckString = Object.keys(params)
-      .sort()
-      .map((key) => `${key}=${params[key]}`)
-      .join("\n");
+    const authDate = params.get("auth_date");
+    if (authDate) {
+      const authTimestamp = parseInt(authDate, 10) * 1000;
+      if (Date.now() - authTimestamp > 24 * 60 * 60 * 1000) {
+        return { isValid: false }; // Data is older than 24 hours
+      }
+    }
+
+    const dataCheckArr: string[] = [];
+    params.sort();
+    params.forEach((value, key) => {
+      dataCheckArr.push(`${key}=${value}`);
+    });
+
+    const dataCheckString = dataCheckArr.join("\n");
 
     const secretKey = crypto
       .createHmac("sha256", "WebAppData")
@@ -602,7 +601,11 @@ export class AuthService {
     }
 
     try {
-      const userData = JSON.parse(params.user);
+      const userParam = params.get("user");
+      if (!userParam) {
+        return { isValid: false };
+      }
+      const userData = JSON.parse(userParam);
       return { isValid: true, userData };
     } catch (error) {
       return { isValid: false };
