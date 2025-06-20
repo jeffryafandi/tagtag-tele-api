@@ -562,52 +562,64 @@ export class AuthService {
     initData: string,
     botToken: string
   ): { isValid: boolean; userData?: any } {
-    const params = new URLSearchParams(initData);
-    const hashFromTelegram = params.get("hash");
-    if (!hashFromTelegram) {
-      return { isValid: false };
-    }
-    params.delete("hash");
-
-    const authDate = params.get("auth_date");
-    if (authDate) {
-      const authTimestamp = parseInt(authDate, 10) * 1000;
-      if (Date.now() - authTimestamp > 24 * 60 * 60 * 1000) {
-        return { isValid: false }; // Data is older than 24 hours
-      }
-    }
-
-    const dataCheckArr: string[] = [];
-    params.sort();
-    params.forEach((value, key) => {
-      dataCheckArr.push(`${key}=${value}`);
-    });
-
-    const dataCheckString = dataCheckArr.join("\n");
-
-    const secretKey = crypto
-      .createHmac("sha256", "WebAppData")
-      .update(botToken)
-      .digest();
-
-    const calculatedHash = crypto
-      .createHmac("sha256", secretKey)
-      .update(dataCheckString)
-      .digest("hex");
-
-    const isValid = calculatedHash === hashFromTelegram;
-    if (!isValid) {
-      return { isValid: false };
-    }
-
     try {
+      const params = new URLSearchParams(initData);
+
+      const hashFromTelegram = params.get("hash");
+      if (!hashFromTelegram) {
+        return { isValid: false };
+      }
+
+      params.delete("hash");
+
+      const authDate = params.get("auth_date");
+      if (authDate) {
+        const authTimestamp = parseInt(authDate, 10) * 1000;
+        if (Date.now() - authTimestamp > 24 * 60 * 60 * 1000) {
+          return { isValid: false }; // Data is older than 24 hours
+        }
+      }
+
+      // Convert URLSearchParams to array and sort alphabetically by key
+      const dataCheckArr: string[] = [];
+      const sortedParams = Array.from(params.entries()).sort((a, b) =>
+        a[0].localeCompare(b[0])
+      );
+
+      for (const [key, value] of sortedParams) {
+        dataCheckArr.push(`${key}=${value}`);
+      }
+
+      const dataCheckString = dataCheckArr.join("\n");
+
+      const secretKey = crypto
+        .createHmac("sha256", "WebAppData")
+        .update(botToken)
+        .digest();
+
+      const calculatedHash = crypto
+        .createHmac("sha256", secretKey)
+        .update(dataCheckString)
+        .digest("hex");
+
+      const isValid = calculatedHash === hashFromTelegram;
+      if (!isValid) {
+        console.log("Hash validation failed:");
+        console.log("Expected:", hashFromTelegram);
+        console.log("Calculated:", calculatedHash);
+        console.log("Data check string:", dataCheckString);
+        return { isValid: false };
+      }
+
       const userParam = params.get("user");
       if (!userParam) {
         return { isValid: false };
       }
+
       const userData = JSON.parse(userParam);
       return { isValid: true, userData };
     } catch (error) {
+      console.error("Error in validateTelegramHash:", error);
       return { isValid: false };
     }
   }
