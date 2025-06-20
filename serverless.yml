@@ -23,10 +23,6 @@ provider:
     DB_DATABASE: ${env:DB_DATABASE}
     DB_USERNAME: ${env:DB_USERNAME}
     DB_PASSWORD: ${env:DB_PASSWORD}
-    REDIS_HOST: ${env:REDIS_HOST}
-    REDIS_PORT: ${env:REDIS_PORT}
-    REDIS_PASS: ${env:REDIS_PASS}
-
 # useDotenv is deprecated in favor of `serverless-dotenv-plugin`'s native handling
 useDotenv: true 
 
