@@ -1050,7 +1050,6 @@ functions:
 
 plugins:
   - serverless-offline
-  - serverless-prune-plugin
   - serverless-plugin-typescript
   - serverless-plugin-common-excludes
   - serverless-plugin-include-dependencies
