@@ -558,30 +558,55 @@ export class AuthService {
       .findOne({ where: { telegram_id: `${telegramId}` } });
   }
 
-  public getTelegramData(tgWebAppData: string): Record<string, string> {
-    return Object.fromEntries(new URLSearchParams(tgWebAppData));
-  }
-
   public validateTelegramHash(
-    hash: string,
-    data: Record<string, any>
-  ): boolean {
-    const dataCheckString = Object.keys(data)
+    initData: string,
+    botToken: string
+  ): { isValid: boolean; userData?: any } {
+    let hashFromTelegram = "";
+    const params: Record<string, string> = {};
+
+    for (const pair of initData.split("&")) {
+      const parts = pair.split("=");
+      const key = parts[0];
+      const value = decodeURIComponent(parts.slice(1).join("="));
+
+      if (key === "hash") {
+        hashFromTelegram = value;
+        continue;
+      }
+      params[key] = value;
+    }
+
+    if (!hashFromTelegram) {
+      return { isValid: false };
+    }
+
+    const dataCheckString = Object.keys(params)
       .sort()
-      .map((key) => `${key}=${data[key]}`)
+      .map((key) => `${key}=${params[key]}`)
       .join("\n");
 
-    const secret = crypto
+    const secretKey = crypto
       .createHmac("sha256", "WebAppData")
-      .update(process.env.TELEGRAM_BOT_TOKEN || "")
+      .update(botToken)
       .digest();
 
     const calculatedHash = crypto
-      .createHmac("sha256", secret)
+      .createHmac("sha256", secretKey)
       .update(dataCheckString)
       .digest("hex");
 
-    return calculatedHash === hash;
+    const isValid = calculatedHash === hashFromTelegram;
+    if (!isValid) {
+      return { isValid: false };
+    }
+
+    try {
+      const userData = JSON.parse(params.user);
+      return { isValid: true, userData };
+    } catch (error) {
+      return { isValid: false };
+    }
   }
 
   public async returnTokenData(
