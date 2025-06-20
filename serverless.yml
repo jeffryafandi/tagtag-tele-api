@@ -1035,7 +1035,7 @@ package:
 
 custom:
   serverless-offline:
-    httpPort: 3000
+    httpPort: ${env:HTTP_PORT}
     host: 0.0.0.0
     stage: ${self:provider.stage}
     useChildProcesses: true
