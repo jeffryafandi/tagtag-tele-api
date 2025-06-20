@@ -771,6 +771,10 @@ functions:
           method: POST
           cors: true
       - http:
+          path: /auths/login/telegram
+          method: POST
+          cors: true
+      - http:
           path: /auths/login/google
           method: POST
           cors: true
