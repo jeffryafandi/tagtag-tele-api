@@ -562,17 +562,21 @@ export class AuthService {
     hash: string,
     data: Record<string, any>
   ): boolean {
-    const secret = crypto
-      .createHmac("sha256", "WebAppData")
-      .update(process.env.TELEGRAM_BOT_TOKEN || "");
     const dataCheckString = Object.keys(data)
       .sort()
       .map((key) => `${key}=${data[key]}`)
       .join("\n");
+
+    const secret = crypto
+      .createHmac("sha256", "WebAppData")
+      .update(process.env.TELEGRAM_BOT_TOKEN || "")
+      .digest();
+
     const calculatedHash = crypto
-      .createHmac("sha256", secret.digest())
+      .createHmac("sha256", secret)
       .update(dataCheckString)
       .digest("hex");
+
     return calculatedHash === hash;
   }
 

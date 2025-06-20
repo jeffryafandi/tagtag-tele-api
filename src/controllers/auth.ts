@@ -3349,31 +3349,18 @@ export const loginWithTelegram: lambda.Handler = async (
   let user: Users | null;
 
   try {
-    const decodedTgWebAppData = decodeURIComponent(parsedBody.tgWebAppData);
-    const queryParams = new URLSearchParams(decodedTgWebAppData);
-    const userStr = queryParams.get("user");
-    const hash = queryParams.get("hash");
+    const telegramData = Object.fromEntries(
+      new URLSearchParams(parsedBody.tgWebAppData)
+    );
 
-    if (!userStr || !hash) {
-      return ResponseService.baseResponseJson(
-        400,
-        "Invalid Telegram data",
-        null
-      );
-    }
+    const hash = telegramData.hash;
+    delete telegramData.hash;
 
-    const dataToValidate: Record<string, string> = {};
-    queryParams.forEach((value, key) => {
-      if (key !== "hash") {
-        dataToValidate[key] = value;
-      }
-    });
-
-    if (!authService.validateTelegramHash(hash, dataToValidate)) {
+    if (!authService.validateTelegramHash(hash, telegramData)) {
       return ResponseService.baseResponseJson(403, "Invalid hash", null);
     }
 
-    const userData = JSON.parse(userStr);
+    const userData = JSON.parse(telegramData.user);
 
     user = await authService.getUserByTelegramId(userData.id);
     let isFirstLogin = false;
@@ -3411,12 +3398,16 @@ export const loginWithTelegram: lambda.Handler = async (
       await connection.getRepository(Users).save(user);
     }
 
-    const data = await authService.returnTokenData(
+    const responseData = await authService.returnTokenData(
       user.api_token,
       isFirstLogin
     );
 
-    return ResponseService.baseResponseJson(200, "Login successful", data);
+    return ResponseService.baseResponseJson(
+      200,
+      "Login successful",
+      responseData
+    );
   } catch (error) {
     console.error(error);
     return ResponseService.baseResponseJson(500, "An error occurred", null);
