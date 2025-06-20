@@ -1050,7 +1050,6 @@ functions:
 
 plugins:
   - serverless-offline
-  - serverless-iam-roles-per-function
   - serverless-prune-plugin
   - serverless-plugin-typescript
   - serverless-plugin-common-excludes
