@@ -1,11 +1,20 @@
 service: tagtag-api
 
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+# frameworkVersion: '3'
+use-node-externals: true # this is required to not bundle node_modules
+package:
+  individually: true
+  patterns:
+    # This pattern is cross-platform compatible.
+    - google_service_account.json
+
 provider:
   name: aws
   runtime: nodejs18.x
   stage: ${opt:stage, 'dev'}
-  region: us-east-1
-  timeout: 30
+  region: ap-southeast-1
   # profile: nomina # Profile is commented out, which is good for CI/CD. Developers can set this locally.
   environment:
     DB_CONNECTION: ${env:DB_CONNECTION}
@@ -14,6 +23,24 @@ provider:
     DB_DATABASE: ${env:DB_DATABASE}
     DB_USERNAME: ${env:DB_USERNAME}
     DB_PASSWORD: ${env:DB_PASSWORD}
+    REDIS_HOST: ${env:REDIS_HOST}
+    REDIS_PORT: ${env:REDIS_PORT}
+    REDIS_PASS: ${env:REDIS_PASS}
+    X_API_SECRET: ${env:X_API_SECRET}
+    PUSHER_APP_ID: ${env:PUSHER_APP_ID}
+    PUSHER_KEY: ${env:PUSHER_KEY}
+    PUSHER_SECRET: ${env:PUSHER_SECRET}
+    PUSHER_CLUSTER: ${env:PUSHER_CLUSTER}
+    AWS_S3_REGION: ${env:AWS_S3_REGION}
+    AWS_S3_ACCESS_KEY: ${env:AWS_S3_ACCESS_KEY}
+    AWS_S3_SECRET_KEY: ${env:AWS_S3_SECRET_KEY}
+    AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
+    BASE_API_URL: ${env:BASE_API_URL}
+    HOOK_TOKEN: ${env:HOOK_TOKEN}
+    IS_OFFLINE: true
+    MAILGUN_API_DOMAIN: ${env:MAILGUN_API_DOMAIN, 'your-mailgun-api-domain'}
+    MAILGUN_API_KEY: ${env:MAILGUN_API_KEY, 'your-mailgun-api-key'}
+    MAILGUN_DOMAIN_NAME: ${env:MAILGUN_DOMAIN_NAME, 'your-mailgun-domain-name'}
 
 # useDotenv is deprecated in favor of `serverless-dotenv-plugin`'s native handling
 useDotenv: true 
@@ -32,8 +59,58 @@ functions:
           method: any
   authorizerFunc:
     handler: dist/controllers/auth.auth
+    environment:
+      DB_CONNECTION: ${env:DB_CONNECTION}
+      DB_HOST: ${env:DB_HOST}
+      DB_PORT: ${env:DB_PORT}
+      DB_DATABASE: ${env:DB_DATABASE}
+      DB_USERNAME: ${env:DB_USERNAME}
+      DB_PASSWORD: ${env:DB_PASSWORD}
+      REDIS_HOST: ${env:REDIS_HOST}
+      REDIS_PORT: ${env:REDIS_PORT}
+      REDIS_PASS: ${env:REDIS_PASS}
+      X_API_SECRET: ${env:X_API_SECRET}
+      PUSHER_APP_ID: ${env:PUSHER_APP_ID}
+      PUSHER_KEY: ${env:PUSHER_KEY}
+      PUSHER_SECRET: ${env:PUSHER_SECRET}
+      PUSHER_CLUSTER: ${env:PUSHER_CLUSTER}
+      AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_S3_ACCESS_KEY: ${env:AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${env:AWS_S3_SECRET_KEY}
+      AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
+      BASE_API_URL: ${env:BASE_API_URL}
+      HOOK_TOKEN: ${env:HOOK_TOKEN}
+      IS_OFFLINE: true
+      MAILGUN_API_DOMAIN: ${env:MAILGUN_API_DOMAIN}
+      MAILGUN_API_KEY: ${env:MAILGUN_API_KEY}
+      MAILGUN_DOMAIN_NAME: ${env:MAILGUN_DOMAIN_NAME}
   adminAuthorizerFunc:
     handler: dist/controllers/admin/auth.auth
+    environment:
+      DB_CONNECTION: ${env:DB_CONNECTION}
+      DB_HOST: ${env:DB_HOST}
+      DB_PORT: ${env:DB_PORT}
+      DB_DATABASE: ${env:DB_DATABASE}
+      DB_USERNAME: ${env:DB_USERNAME}
+      DB_PASSWORD: ${env:DB_PASSWORD}
+      REDIS_HOST: ${env:REDIS_HOST}
+      REDIS_PORT: ${env:REDIS_PORT}
+      REDIS_PASS: ${env:REDIS_PASS}
+      X_API_SECRET: ${env:X_API_SECRET}
+      PUSHER_APP_ID: ${env:PUSHER_APP_ID}
+      PUSHER_KEY: ${env:PUSHER_KEY}
+      PUSHER_SECRET: ${env:PUSHER_SECRET}
+      PUSHER_CLUSTER: ${env:PUSHER_CLUSTER}
+      AWS_S3_REGION: ${env:AWS_S3_REGION}
+      AWS_S3_ACCESS_KEY: ${env:AWS_S3_ACCESS_KEY}
+      AWS_S3_SECRET_KEY: ${env:AWS_S3_SECRET_KEY}
+      AWS_S3_BUCKET: ${env:AWS_S3_BUCKET}
+      BASE_API_URL: ${env:BASE_API_URL}
+      HOOK_TOKEN: ${env:HOOK_TOKEN}
+      IS_OFFLINE: true
+      MAILGUN_API_DOMAIN: ${env:MAILGUN_API_DOMAIN}
+      MAILGUN_API_KEY: ${env:MAILGUN_API_KEY}
+      MAILGUN_DOMAIN_NAME: ${env:MAILGUN_DOMAIN_NAME}
   unifiedHandlerWithAuthAdmin:
     handler: dist/routes.privateAdminHandler
     events:
@@ -1026,36 +1103,23 @@ functions:
 
 plugins:
   - serverless-offline
+  - serverless-iam-roles-per-function
+  - serverless-prune-plugin
+  - serverless-plugin-typescript
+  - serverless-plugin-common-excludes
+  - serverless-plugin-include-dependencies
   - serverless-dotenv-plugin
-
-package:
-  patterns:
-    # This pattern is cross-platform compatible.
-    - google_service_account.json
+  - serverless-appsync-plugin
 
 custom:
   serverless-offline:
-    httpPort: ${env:HTTP_PORT}
-    host: 0.0.0.0
-    stage: ${self:provider.stage}
-    useChildProcesses: true
-    websocketPort: 3001
-    lambdaPort: 3002
-    corsAllowHeaders: "accept,content-type,x-api-key,authorization,Authorization"
-    corsAllowOrigin: "*"
-    corsDisallowCredentials: false
-    noAuth: false
-    reloadHandler: true  # Fix for stale code issue
-    # Remove cache to prevent stale code
-    useSeparateProcesses: true
-    # Ensure TypeScript compilation
-    skipCacheInvalidation: false
-    # Production-specific settings
-    printOutput: ${self:custom.serverless-offline-prod.printOutput.${self:provider.stage}, false}
-    
-  # Stage-specific configurations
-  serverless-offline-prod:
-    printOutput:
-      production: true
-      preprod: true
-      development: false
+    httpPort: 6400
+    websocketPort: 6404
+    lambdaPort: 6405
+    noPrependStageInUrl: true # This is important for consistency with API Gateway
+    useChildProcesses: true # This can help with memory leaks
+  prune:
+    automatic: true
+    number: 3
+  # serverless-iam-roles-per-function:
+  #   defaultInherit: true # allows functions to inherit roles from provider section
