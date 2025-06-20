@@ -102,7 +102,7 @@ export class MissionService extends BaseService {
     }
 
     public async getCompleteMissionList(): Promise<void> {
-        let userMissions        = await this.dbConn.getRepository(UserMissions)
+        const userMissions        = await this.dbConn.getRepository(UserMissions)
                                 .createQueryBuilder('userMissions')
                                 .select(['userMissions.session_code', 'userMissions.mission_id', 'userMissions.id', 'userMissions.updated_at', 'userMissions.user_id'])
                                 .leftJoinAndSelect('userMissions.missions', 'missions')
@@ -126,7 +126,7 @@ export class MissionService extends BaseService {
     }
 
     public async resetMission(): Promise<void> {
-        let userMissionsInComplete        = await this.dbConn.getRepository(UserMissions)
+        const userMissionsInComplete        = await this.dbConn.getRepository(UserMissions)
                                 .createQueryBuilder('userMissions')
                                 .select(['userMissions.session_code', 'userMissions.mission_id', 'userMissions.id', 'userMissions.updated_at', 'userMissions.user_id'])
                                 .leftJoinAndSelect('userMissions.missions', 'missions')
@@ -372,7 +372,7 @@ export class MissionService extends BaseService {
         const userMissions = await this.getUserMissionByMissionId(user.id, missionId);
         if (userMissions.length < 1) return {};
 
-        let latestMission   = userMissions[0];
+        const latestMission   = userMissions[0];
         const played        = userMissions.filter((userMission) => {
             return ((latestMission.session_code === userMission.session_code) && userMission.is_claimed);
         });
@@ -399,7 +399,7 @@ export class MissionService extends BaseService {
         }
 
         // let coinPrize = (user.stamina < latestMission.stamina_prize && !latestMission.is_watched_ad) ? 0 : latestMission.coin_prize;
-        let coinPrize = latestMission.coin_prize;
+        const coinPrize = latestMission.coin_prize;
         const couponPrize       = Math.ceil(this.helperService.toFixNumber(latestMission.coupon_prize * (rewardMultiplier)));
         const activityPrize     = Math.ceil(this.helperService.toFixNumber(latestMission.activity_point_prize * (rewardMultiplier)));
 
@@ -439,7 +439,7 @@ export class MissionService extends BaseService {
         const userMissions  = await this.getUserMissionByMissionId(user.id, missionId)
         if (userMissions.length < 1) return;
 
-        let latestMission   = userMissions[0];
+        const latestMission   = userMissions[0];
         const played        = userMissions.filter((userMission) => {
             return ((latestMission.session_code === userMission.session_code) && userMission.is_claimed);
         });
@@ -503,7 +503,7 @@ export class MissionService extends BaseService {
 
         if(!missions[0].is_claimed) return;
 
-        let userMission = await this.dbConn.getRepository(UserMissions)
+        const userMission = await this.dbConn.getRepository(UserMissions)
                         .createQueryBuilder('userMissions')
                         .leftJoinAndSelect('userMissions.missions', 'missions')
                         .addSelect("COUNT(userMissions.session_code)", "totalPlayed")
@@ -534,7 +534,7 @@ export class MissionService extends BaseService {
         const mission = missions[0];
         if (mission.is_claimed) return;
 
-        let rewardMultiplier        = progress.reward_multiplier || 1;
+        const rewardMultiplier        = progress.reward_multiplier || 1;
         let boosterMultiply         = 1;
         let boosterInGame           = 1;
         let boosterShop             = 1;
@@ -615,7 +615,7 @@ export class MissionService extends BaseService {
         const reducedInventories: any = [];
         if (usedGameInventories.length > 0) {
             usedGameInventories.sort();
-            let inventories: any = {};
+            const inventories: any = {};
             progress.game_inventory_codes.map((code: string) => {
                 if (inventories[code]) {
                     inventories[code] = inventories[code] + 1;

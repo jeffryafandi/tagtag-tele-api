@@ -62,7 +62,7 @@ export const raffleTicketHandlerQueue: lambda.Handler = async (event: lambda.SQS
     const raffleService = new RaffleService(conn);
 
     for (const record of records) {
-        let body  = record.body ? JSON.parse(record.body) : undefined;
+        const body  = record.body ? JSON.parse(record.body) : undefined;
         if (body) {
             await raffleService.handleRaffleTicketQueue(body.data);
         }   
@@ -78,7 +78,7 @@ export const notificationHandlerQueue: lambda.Handler = async (event: lambda.SQS
         console.log("[notificationHandlerQueue] receive message, event.Records", event.Records);
         
         for (const record of records) {
-            let body  = record.body ? JSON.parse(record.body) : undefined;
+            const body  = record.body ? JSON.parse(record.body) : undefined;
             if (body) {
                 await notificationService.handleNotificationQueue(body.data);
             }   
@@ -98,7 +98,7 @@ export const notifMessageHandlerQueue: lambda.Handler = async (event: lambda.SQS
     console.log("[notifMessageHandlerQueue] receive message, event.Records", event.Records);
     
     for (const record of records) {
-        let body  = record.body ? JSON.parse(record.body) : undefined;
+        const body  = record.body ? JSON.parse(record.body) : undefined;
         if (body) {
             await notificationService.handleNotifMessageQueue(body.data);
         }   

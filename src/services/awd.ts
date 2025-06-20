@@ -44,15 +44,15 @@ export class AwdService {
             return undefined;
         }
 
-        let a = time + msisdn.slice(-4);
-        let b = msisdn.slice(-4).split('').reverse().join('') + this.password;
+        const a = time + msisdn.slice(-4);
+        const b = msisdn.slice(-4).split('').reverse().join('') + this.password;
 
         let xorResult = '';
         for (let i = 0; i < a.length; i++) {
             xorResult += String.fromCharCode(a.charCodeAt(i) ^ b.charCodeAt(i));
         }
 
-        let signature = Buffer.from(xorResult, 'binary').toString('base64');
+        const signature = Buffer.from(xorResult, 'binary').toString('base64');
 
         return signature;
     }
@@ -60,8 +60,8 @@ export class AwdService {
     public async callAPI(payload: object, endpoint: string): Promise <[success: boolean, message: string, data: object | undefined]>{
         this.checkConfiguration();
 
-        let url = this.url;
-        let header = [
+        const url = this.url;
+        const header = [
             ["Content-Type",    "application/json"],
             ["Accept",          "application/json"]
         ];
@@ -109,7 +109,7 @@ export class AwdService {
         const timestamp = dayjs().format('HHmmss');
         const signature = await this.generateSignature(timestamp, input.msisdn);
 
-        let payload = {
+        const payload = {
             "command"       : "TOPUP",
             "product"       : input.product_id,
             "userid"        : this.phoneNumber,
@@ -148,7 +148,7 @@ export class AwdService {
         const timestamp = dayjs().format('HHmmss');
         const signature = await this.generateSignature(timestamp, input.msisdn);
 
-        let payload = {
+        const payload = {
             "command"       : "CEK",
             "product"       : input.product_id,
             "userid"        : this.phoneNumber,
@@ -185,7 +185,7 @@ export class AwdService {
         const timestamp = dayjs().format('HHmmss');
         const signature = await this.generateSignature(timestamp, input.msisdn);
 
-        let payload = {
+        const payload = {
             "command"       : "PAY",
             "product"       : input.product_id,
             "userid"        : this.phoneNumber,
@@ -239,8 +239,8 @@ export class AwdService {
     }
 
     public async getUsersAwdLogs(startDate: string, endDate: string) {
-        let mappedUserDitkuLogs = [];
-        let logs = await this.dbConn.getRepository(OperatorPurchases)
+        const mappedUserDitkuLogs = [];
+        const logs = await this.dbConn.getRepository(OperatorPurchases)
                     .createQueryBuilder('operatorPurchases')
                     .leftJoinAndSelect('operatorPurchases.user', 'user')
                     .leftJoinAndSelect('operatorPurchases.operator', 'operator')

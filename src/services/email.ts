@@ -25,15 +25,15 @@ export class EmailService {
         this.mailgunDomain      = config.MAILGUN_DOMAIN_NAME;
     }
 
-    public async sendEmail(to: string[], cc: string, subject:string, message: string, attachment: any | undefined = undefined, filename: string | undefined = undefined, html: string | undefined = undefined): Promise<Boolean>{
+    public async sendEmail(to: string[], cc: string, subject:string, message: string, attachment: any | undefined = undefined, filename: string | undefined = undefined, html: string | undefined = undefined): Promise<boolean>{
         if(this.mailgunApiKey == undefined || this.mailgunDomain == undefined || this.mailgunApiDomain == undefined){
             console.log("Sending emails failed. Missing some env variables.");
             return false;
         }
 
-        let buff = new Buffer('api:' + this.mailgunApiKey);
+        const buff = new Buffer('api:' + this.mailgunApiKey);
 
-        let header = [
+        const header = [
             ["Accept", "application/json"],
             ["Authorization", "Basic " + buff.toString('base64')]
         ];
@@ -49,7 +49,7 @@ export class EmailService {
         formData.append('o:tracking-clicks', 'false');
         formData.append('o:tracking-opens', 'false');
 
-        let uniqueTos   = [...new Set(to)];
+        const uniqueTos   = [...new Set(to)];
         for (const to of uniqueTos) {
             if(to == undefined || to == null){
                 continue;
@@ -81,8 +81,8 @@ export class EmailService {
         return true;
     }
 
-    public async sendRegistrationOtp(user: Users): Promise<Boolean>{
-        let message = "\
+    public async sendRegistrationOtp(user: Users): Promise<boolean>{
+        const message = "\
 Halo " + user.username + "\n\n\
 Sebelum mengubah apa pun, kamu perlu mengonfirmasi akun TagTag lebih dulu.\n\
 Kamu perlu memasukkan kode OTP di bawah ini pada halaman konfirmasi.\n\n\
@@ -97,9 +97,9 @@ TagTag\n\
         return true;
     }
 
-    public async sendForgotPasswordOtp(user: Users, token:string): Promise<Boolean> {
-        let url = `${process.env.BASE_API_URL}/auths/forgot-password?page=reset_password&t=${process.env.HOOK_TOKEN}&reset_password_token=${token}`;
-        let message = "Hello!\n\n\
+    public async sendForgotPasswordOtp(user: Users, token:string): Promise<boolean> {
+        const url = `${process.env.BASE_API_URL}/auths/forgot-password?page=reset_password&t=${process.env.HOOK_TOKEN}&reset_password_token=${token}`;
+        const message = "Hello!\n\n\
 Halo, " + user.username + "!\n\n\
 Sepertinya kamu ingin melakukan reset password TagTag kamu!\n\n\
 Silahkan klik link dibawah ini untuk me-reset password TagTag kamu \n\n\
@@ -125,8 +125,8 @@ const html = `
         return true;
     }
 
-    public async sendChangeEmailRequestOtp(user: Users): Promise<Boolean>{
-        let message = "\
+    public async sendChangeEmailRequestOtp(user: Users): Promise<boolean>{
+        const message = "\
 Hello!\n\n\
 We received a request to change your email.\n\
 Below is the otp token to complete the changes.\n\n\
@@ -142,7 +142,7 @@ Please ignore if you did not request this change\
     public async sendAffiliateUpgradeApproved(user: Users|undefined, previousBenefit: AffiliateBenefits|undefined, currentBenefit: AffiliateBenefits): Promise<boolean> {
         if (!user || !previousBenefit) return false;
         const url   = `${process.env.BASE_API_URL}/affiliates/upgrade/approved?prev=${previousBenefit.name}&current=${currentBenefit.name}&percent=${currentBenefit.affiliateBenefitTierings[0].value}`;
-        let message = "\
+        const message = "\
 Dear " + user.username + "\n\n\
 Selamat! Pengajuan Update Level Afiliasi Kamu berhasil\n\n\
 Level Sebelumnya: "+ [previousBenefit.name] + "\n\
@@ -159,7 +159,7 @@ TagTag\n\
 
     public async sendAffiliateUpgradePending(user: Users|undefined, currentBenefit: AffiliateBenefits): Promise<boolean> {
         if (!user) return false;
-        let message = "\
+        const message = "\
 Halo " + user.username + "\n\n\
 Saat ini permintaan untuk update level afiliasi kamu sedang dalam proses tinjauan tim TagTag\n\
 Harap tunggu untuk pemberitahuan status selanjutnya.\n\n\
@@ -177,7 +177,7 @@ TagTag\n\
 
     public async sendAffiliateUpgradeRejectedDuplicateSocial(user: Users|undefined, currentBenefit: AffiliateBenefits): Promise<boolean> {
         if (!user || !currentBenefit) return false;
-        let message = "\
+        const message = "\
 Dear " + user.username + "\n\n\
 Pengajuan Update Level Afiliasi Kamu belum dapat kami terima.\n\n\
 Level Saat Ini: "+ [currentBenefit.name]  + " " + [currentBenefit.affiliateBenefitTierings[0].value*100] +"% \n\n\
@@ -193,7 +193,7 @@ TagTag\n\
 
     public async sendAffiliateUpgradeRejectedNotEnoughFolls(user: Users|undefined, currentBenefit: AffiliateBenefits): Promise<boolean> {
         if (!user || !currentBenefit) return false;
-        let message = "\
+        const message = "\
 Dear " + user.username + "\n\n\
 Pengajuan Update Level Afiliasi Kamu belum dapat kami terima.\n\n\
 Level Saat Ini: "+ [currentBenefit.name]  + " " + [currentBenefit.affiliateBenefitTierings[0].value*100] +"% \n\n\
@@ -209,7 +209,7 @@ TagTag\n\
 
     public async sendAffiliateUpgradeRejectedIncorrectLink(user: Users|undefined, currentBenefit: AffiliateBenefits): Promise<boolean> {
         if (!user || !currentBenefit) return false;
-        let message = "\
+        const message = "\
 Dear " + user.username + "\n\n\
 Pengajuan Update Level Afiliasi Kamu belum dapat kami terima.\n\n\
 Level Saat Ini: "+ [currentBenefit.name]  + " " + [currentBenefit.affiliateBenefitTierings[0].value*100] +"% \n\n\
@@ -231,7 +231,7 @@ Tim TagTag\n\
 
     public async sendPulsaFailed(user: Users|undefined, operator: Operators|undefined): Promise<boolean> {
         if (!user || !operator) return false;
-        let message = "\
+        const message = "\
 Transaksi pembelian Pulsa kamu senilai " + operator.denom + " belum berhasl kami proses.\n\n\
 Dikarenakan  ID Pelanggan salah atau Nomor Kamu masukan salah. Pastikan bahwa data yang kamu masukan sesuai dan saldo Koin TagTag kamu cukup untuk melakukan transaksi ini. \n\n Terima Kasih.\
         ";
@@ -243,7 +243,7 @@ Dikarenakan  ID Pelanggan salah atau Nomor Kamu masukan salah. Pastikan bahwa da
 
     public async sendPulsaSuccess(user: Users|undefined, operator: Operators|undefined, operatorPurchase: OperatorPurchases): Promise<boolean> {
         if (!user || !operator) return false;
-        let message = "\
+        const message = "\
 Selamat! Transaksi pembelian Pulsa kamu senilai " + operator.denom + " telah berhasil dilakukan pada " + operatorPurchase.created_at +"\n\n\
 Terima Kasih.\
         ";
@@ -255,7 +255,7 @@ Terima Kasih.\
 
     public async sendPDAMFailed(user: Users|undefined, operator: Operators|undefined): Promise<boolean> {
         if (!user || !operator) return false;
-        let message = "\
+        const message = "\
 Transaksi pembelian PDAM kamu senilai " + operator.denom + " belum berhasl kami proses.\n\n\
 Dikarenakan  ID Pelanggan salah atau Nomor Kamu masukan salah. Pastikan bahwa data yang kamu masukan sesuai dan saldo Koin TagTag kamu cukup untuk melakukan transaksi ini. \n\n Terima Kasih.\
         ";
@@ -267,7 +267,7 @@ Dikarenakan  ID Pelanggan salah atau Nomor Kamu masukan salah. Pastikan bahwa da
 
     public async sendPDAMSuccess(user: Users|undefined, operator: Operators|undefined, operatorPurchase: OperatorPurchases): Promise<boolean> {
         if (!user || !operator) return false;
-        let message = "\
+        const message = "\
 Selamat! Transaksi pembelian PDAM kamu senilai " + operator.denom + " telah berhasil dilakukan pada " + operatorPurchase.created_at +"\n\n\
 Terima Kasih.\
         ";
@@ -279,7 +279,7 @@ Terima Kasih.\
 
     public async sendPLNFailed(user: Users|undefined, operator: Operators|undefined, operatorPurchase: OperatorPurchases): Promise<boolean> {
         if (!user || !operator) return false;
-        let message = "\
+        const message = "\
 Transaksi pembelian Listrik PLN dengan nomor Pelanggan " + operatorPurchase.trx_id + " senilai "+ operator.denom +" belum berhasil kami proses\n\n\
 Dikarenakan  ID Pelanggan salah atau Nomor Kamu masukan salah. Pastikan bahwa data yang kamu masukan sesuai dan saldo Koin TagTag kamu cukup untuk melakukan transaksi ini. \n\n Terima Kasih.\
         ";
@@ -291,7 +291,7 @@ Dikarenakan  ID Pelanggan salah atau Nomor Kamu masukan salah. Pastikan bahwa da
 
     public async sendPLNSuccess(user: Users|undefined, operator: Operators|undefined, operatorPurchase: OperatorPurchases): Promise<boolean> {
         if (!user || !operator) return false;
-        let message = "\
+        const message = "\
 Selamat! Transaksi pembelian Listrik PLN dengan nomor Pelanggan " + operatorPurchase.trx_id + " senilai "+ operator.denom +" telah berhasil dilakukan pada " + operatorPurchase.created_at +"\n\n\
 Terima Kasih.\
         ";
@@ -303,7 +303,7 @@ Terima Kasih.\
 
     public async sendvVerificationKTPSuccess(user: Users|undefined): Promise<boolean> {
         if (!user) return false;
-        let message = "\
+        const message = "\
 Dear " + user.username + "\n\n\
 Selamat! Verifikasi e-KYC kamu berhasil. \
 Kamu sekarang sudah bisa melakukan Penarikan Koin maupun Komisi Afiliasi dalam aplikasi TagTag\n\
@@ -319,7 +319,7 @@ Tim TagTag\n\
 
     public async sendvVerificationKTPPending(user: Users|undefined): Promise<boolean> {
         if (!user) return false;
-        let message = "\
+        const message = "\
 Dear " + user.username + "\n\n\
 Verifikasi e-KYC sedang dalam proses tinjauan tim TagTag.\n\
 Harap tunggu untuk pemberitahuan status selanjutnya.\n\n\n\
@@ -334,7 +334,7 @@ Tim TagTag\n\
 
     public async sendvVerificationKTPRejected(user: Users|undefined): Promise<boolean> {
         if (!user) return false;
-        let message = "\
+        const message = "\
 Dear " + user.username + "\n\n\
 Verifikasi KYC kamu belum dapat kami proses.\n\
 Harap ulangi proses verifikasi kamu dengan mempertimbangkan syarat dan ketentuan dari TagTag.\n\n\n\
@@ -347,8 +347,8 @@ Tim TagTag\n\
         return true;
     }
 
-    public async sendTokenForVerifyPin(user: Users, token: string): Promise<Boolean>{
-        let message = "\
+    public async sendTokenForVerifyPin(user: Users, token: string): Promise<boolean>{
+        const message = "\
 Halo, " + user.username + "!\n\n\
 Permintaan pembuatan PIN akun TagTag kamu sudah kami terima!\n\n\
 Untuk step selanjutnya, kamu bisa memasukkan kode OTP dibawah untuk memverifikasi permintaanmu! \n\n\
@@ -361,10 +361,10 @@ INGAT! Jangan bagikan kode OTP diatas kepada siapapun!\
         return true;
     }
 
-    public async sendResetPIN(user: Users, token: string): Promise<Boolean> {
+    public async sendResetPIN(user: Users, token: string): Promise<boolean> {
         const encoded   = Buffer.from(token).toString('base64');
-        let url         = `${process.env.BASE_FE_URL}/reset_pin?token=${encoded}`;
-        let message     = "\
+        const url         = `${process.env.BASE_FE_URL}/reset_pin?token=${encoded}`;
+        const message     = "\
 Halo, " + user.username + "!\n\n\
 Sepertinya kamu ingin melakukan reset PIN TagTag kamu!\n\n\
 Silahkan klik link dibawah ini untuk me-reset PIN TagTag kamu \n\n\

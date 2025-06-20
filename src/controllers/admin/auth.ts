@@ -10,11 +10,11 @@ export const auth: lambda.Handler = async (event: lambda.APIGatewayTokenAuthoriz
     const connection            = await database.getConnection();
     const authService           = new AuthService(connection);
 
-    let rawToken: string = event.authorizationToken;
+    const rawToken: string = event.authorizationToken;
 
-    let token = authService.sanitizeRawToken(rawToken);
+    const token = authService.sanitizeRawToken(rawToken);
 
-    let hookToken = process.env.HOOK_TOKEN;
+    const hookToken = process.env.HOOK_TOKEN;
     if(token != hookToken){
         return authService.generatePolicy(event.authorizationToken, 'Deny', event.methodArn);
     }

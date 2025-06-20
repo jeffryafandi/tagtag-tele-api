@@ -81,8 +81,8 @@ export class DuitkuService {
 
     public async callAPI(payload: object, endpoint: string): Promise <[success: boolean, message: string, data: DuitkuPossibleTransferResponse | undefined]>{
         this.checkConfiguration();
-        let url = this.url;
-        let header = [
+        const url = this.url;
+        const header = [
             ["Content-Type",    "application/json"],
             ["Accept",          "application/json"]
         ];
@@ -126,7 +126,7 @@ export class DuitkuService {
         const roundedTimestamp  = Math.round(timestamp);
         const signature         = this.generateInquirySignature(roundedTimestamp, input)
 
-        let payload = {
+        const payload = {
             "userId"            : this.userId,
             "amountTransfer"    : input.amount,
             "bankAccount"       : input.bank_account,
@@ -151,7 +151,7 @@ export class DuitkuService {
         const roundedTimestamp  = Math.round(timestamp);
         const signature         = this.generateTransferSignature(roundedTimestamp, input);
 
-        let payload = {
+        const payload = {
             "disburseId"        : input.disburse_id,
             "userId"            : this.userId,
             "amountTransfer"    : input.amount,
@@ -177,9 +177,9 @@ export class DuitkuService {
         const bankService       = new BankService(this.dbConn);
         const bankList          = await bankService.fetchBankList();
 
-        let mappedUserDitkuLogs = [];
+        const mappedUserDitkuLogs = [];
 
-        let logs = await this.dbConn.getRepository(DuitkuLogs)
+        const logs = await this.dbConn.getRepository(DuitkuLogs)
                     .createQueryBuilder('duitkuLogs')
                     .leftJoinAndSelect('duitkuLogs.userWithdraw', 'userWithdraw')
                     .leftJoinAndSelect('userWithdraw.user', 'user')

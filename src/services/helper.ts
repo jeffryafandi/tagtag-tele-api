@@ -65,7 +65,7 @@ export class HelperService {
     }
 
     public generatePagination(event: any, total: number): Pagination | undefined{
-        let input = event.queryStringParameters;
+        const input = event.queryStringParameters;
 
         if(input == undefined || input.page == undefined){
             return undefined;
@@ -92,16 +92,16 @@ export class HelperService {
     }
 
     public calculateDistance(lat1: number, lon1:number, lat2:number, lon2:number): number{
-        var R = 6371; // Radius of the earth in km
-        var dLat = this.deg2rad(lat2-lat1);  // deg2rad below
-        var dLon = this.deg2rad(lon2-lon1); 
-        var a = 
+        const R = 6371; // Radius of the earth in km
+        const dLat = this.deg2rad(lat2-lat1);  // deg2rad below
+        const dLon = this.deg2rad(lon2-lon1); 
+        const a = 
             Math.sin(dLat/2) * Math.sin(dLat/2) +
             Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
             Math.sin(dLon/2) * Math.sin(dLon/2)
             ; 
-        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-        var d = R * c; // Distance in km
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        const d = R * c; // Distance in km
         return d;
     }
 
@@ -146,9 +146,9 @@ export class HelperService {
         str = str.toLowerCase();
     
         // remove accents, swap ñ for n, etc
-        var from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
-        var to   = "aaaaeeeeiiiioooouuuunc------";
-        for (var i=0, l=from.length ; i<l ; i++) {
+        const from = "àáäâèéëêìíïîòóöôùúüûñç·/_,:;";
+        const to   = "aaaaeeeeiiiioooouuuunc------";
+        for (let i=0, l=from.length ; i<l ; i++) {
             str = str.replace(new RegExp(from.charAt(i), 'g'), to.charAt(i));
         }
 
@@ -290,7 +290,7 @@ export class HelperService {
      * @returns string
      */
     public replaceAll(str: string, mapObj: Record<string, string>): string {
-        let re = new RegExp(Object.keys(mapObj).join("|"),"gi");
+        const re = new RegExp(Object.keys(mapObj).join("|"),"gi");
         console.log("RE", re);
         return str.replace(re, function(matched){
             return mapObj[matched.toLowerCase()];
@@ -298,7 +298,7 @@ export class HelperService {
     }
     public ucFirst(str: string): string {
         const arr = str.split(" ");
-        for (var i = 0; i < arr.length; i++) {
+        for (let i = 0; i < arr.length; i++) {
             arr[i] = arr[i].charAt(0).toUpperCase() + arr[i].slice(1);
         
         }

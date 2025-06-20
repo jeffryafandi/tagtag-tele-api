@@ -101,9 +101,9 @@ export const getAllUsers: lambda.Handler = async (event: lambda.APIGatewayEvent)
     const helperService   = new HelperService();
     const userService     = new UserService(connection);
 
-    let filters = event.queryStringParameters;
+    const filters = event.queryStringParameters;
     
-    let [mappedList, total] = await userService.mappedAllUsers(filters);
+    const [mappedList, total] = await userService.mappedAllUsers(filters);
 
     return ResponseService.baseResponseJson(200, 'Success', mappedList, helperService.generatePagination(event, total))
 }
@@ -155,7 +155,7 @@ export const userWithdrawDetail: lambda.Handler = async (event: lambda.APIGatewa
      console.log(startDate)
      console.log(endDate)
 
-    let mappedUserLogs =  await userService.userWithdrawDetail(startDate, endDate);
+    const mappedUserLogs =  await userService.userWithdrawDetail(startDate, endDate);
 
     return ResponseService.baseResponseJson(200, 'Data fetched successfully', mappedUserLogs);
 }

@@ -51,7 +51,7 @@ export class LuckyWheelsService extends BaseService {
                     .getMany();
     }
 
-    public async getLuckyWheels(user: Users): Promise<Object | undefined> {
+    public async getLuckyWheels(user: Users): Promise<object | undefined> {
         let luckyWheelSessions = await this.getLuckyWheelsSessionByUserId(user);
         
         if(luckyWheelSessions.length == 0 ){
@@ -61,7 +61,7 @@ export class LuckyWheelsService extends BaseService {
 
         const session = luckyWheelSessions[0];
         console.log(session)
-        let mappedLuckyWheels = session.luckyWheels?.luckyWheelPrizes?.map((prize) => {
+        const mappedLuckyWheels = session.luckyWheels?.luckyWheelPrizes?.map((prize) => {
             return {
                 id                   : prize.id,
                 coupon_prize         : prize.coupon_prize,
@@ -128,7 +128,7 @@ export class LuckyWheelsService extends BaseService {
         `;
 
         let luckyWheelId = 0;
-        let result       = await this.dbConn.query(randomLuckyWheel);
+        const result       = await this.dbConn.query(randomLuckyWheel);
 
         if (result.length > 0) {
             const rowData = result[0];
@@ -146,7 +146,7 @@ export class LuckyWheelsService extends BaseService {
         });
     }
 
-    public async luckyWheelSpin(user: Users): Promise<Object | undefined | number> {
+    public async luckyWheelSpin(user: Users): Promise<object | undefined | number> {
         if (user.lucky_wheel_spin_entries <= 0) return;
         
         const luckyWheelSession = await this.getLuckyWheelsSessionByUserId(user);
@@ -156,7 +156,7 @@ export class LuckyWheelsService extends BaseService {
             actPointBonus       = Number(appConfig.config_value);
         }
             
-        let luckyWheelSessionPrizes = await this.dbConn.getRepository(LuckyWheelSessionPrizes)
+        const luckyWheelSessionPrizes = await this.dbConn.getRepository(LuckyWheelSessionPrizes)
                                     .createQueryBuilder("luckyWheelSessionPrizes")
                                     .leftJoinAndSelect("luckyWheelSessionPrizes.luckyWheelPrizes", "luckyWheelPrizes")
                                     .where("luckyWheelSessionPrizes.deleted_at IS NULL")
@@ -164,7 +164,7 @@ export class LuckyWheelsService extends BaseService {
                                     .andWhere("luckyWheelSessionPrizes.lucky_wheel_session_id = :luckyWheelSessionId", {luckyWheelSessionId: luckyWheelSession[0]?.id} )
                                     .getMany();
         
-        let luckyWheelPrizes        = await this.dbConn.getRepository(LuckyWheelPrizes)
+        const luckyWheelPrizes        = await this.dbConn.getRepository(LuckyWheelPrizes)
                                     .createQueryBuilder("luckyWheelPrizes")
                                     .leftJoinAndSelect("luckyWheelPrizes.luckyWheels", "luckyWheels")
                                     .leftJoinAndSelect("luckyWheelPrizes.gameInventory", "gameInventory")
@@ -177,14 +177,14 @@ export class LuckyWheelsService extends BaseService {
         const lucky_wheel_id   = luckyWheelPrizes.map(l => l.lucky_wheel_id);
         console.log(lucky_wheel_id)
 
-        let  availablePrizeToClaim = prizeId.filter((prize) => {
+        const  availablePrizeToClaim = prizeId.filter((prize) => {
             return !sessionPrizeId.includes(prize)
         });
 
-        let index = this.helperService.getRandomInt(availablePrizeToClaim.length);
+        const index = this.helperService.getRandomInt(availablePrizeToClaim.length);
         
-        let prizeIdToBeClaimed  = availablePrizeToClaim[index];
-        let claimedWheelPrize   = luckyWheelPrizes.filter((prize) => prize.id == prizeIdToBeClaimed)[0];
+        const prizeIdToBeClaimed  = availablePrizeToClaim[index];
+        const claimedWheelPrize   = luckyWheelPrizes.filter((prize) => prize.id == prizeIdToBeClaimed)[0];
 
         
         if (!claimedWheelPrize) return;
@@ -293,7 +293,7 @@ export class LuckyWheelsService extends BaseService {
         // VIP USER
         await this.vipService.calculateLuckyWheelSpin(user.id);
 
-        let result = {
+        const result = {
             id                  : claimedWheelPrize.id,
             coupon_prize        : claimedPrizes.coupon,
             coin_prize          : claimedPrizes.coin,
@@ -320,7 +320,7 @@ export class LuckyWheelsService extends BaseService {
 
     // Admin
     public async getLuckyWheelList(input: FilterLuckyWheels | null): Promise <[LuckyWheels[], number]>{
-        let luckyWheels   = this.dbConn.getRepository(LuckyWheels)
+        const luckyWheels   = this.dbConn.getRepository(LuckyWheels)
                     .createQueryBuilder("luckyWheels")
                     .where('luckyWheels.deleted_at IS NULL');
 
@@ -349,13 +349,13 @@ export class LuckyWheelsService extends BaseService {
             }
         }
 
-        let [result, total] = await luckyWheels.getManyAndCount();
+        const [result, total] = await luckyWheels.getManyAndCount();
 
         return [result, total];
     }
 
     public async getLuckyWheelDetail(input: FilterLuckyWheels): Promise<LuckyWheels | null> {
-        let luckyWheel    = this.dbConn.getRepository(LuckyWheels)
+        const luckyWheel    = this.dbConn.getRepository(LuckyWheels)
                             .createQueryBuilder("luckyWheel")
                             .leftJoinAndSelect("luckyWheel.luckyWheelPrizes", "luckyWheelPrizes")
                             .leftJoinAndSelect("luckyWheelPrizes.gameInventory", "gameInventory")
@@ -371,14 +371,14 @@ export class LuckyWheelsService extends BaseService {
         return await luckyWheel.getOne();
     }
 
-    public async getLuckyWheelByIdMapped(luckyWheelId: number): Promise<Object | undefined> {
-        let luckyWheel = await this.getLuckyWheelDetail({ id: luckyWheelId });
+    public async getLuckyWheelByIdMapped(luckyWheelId: number): Promise<object | undefined> {
+        const luckyWheel = await this.getLuckyWheelDetail({ id: luckyWheelId });
 
         if (luckyWheel == undefined) {
             return undefined;
         }
 
-        let result = {
+        const result = {
             id           : luckyWheel.id,
             name         : luckyWheel.name,  
             is_active    : luckyWheel.is_active,
@@ -401,7 +401,7 @@ export class LuckyWheelsService extends BaseService {
     }
 
     public async getLuckyWheelById(id: number): Promise<LuckyWheels | undefined> {
-        let luckyWheel = await this.dbConn.getRepository(LuckyWheels)
+        const luckyWheel = await this.dbConn.getRepository(LuckyWheels)
             .createQueryBuilder("luckyWheels")
             .where("luckyWheels.id = :id", { id: id })
             .andWhere('luckyWheels.deleted_at IS NULL')
@@ -415,7 +415,7 @@ export class LuckyWheelsService extends BaseService {
     }
 
     public async createLuckyWheel(input: CreateLuckyWheels): Promise <LuckyWheels | undefined | number>{
-        let luckyWheel = await this.dbConn.getRepository(LuckyWheels).save({
+        const luckyWheel = await this.dbConn.getRepository(LuckyWheels).save({
             name        : input.name,
             is_active   : true
         });
@@ -428,8 +428,8 @@ export class LuckyWheelsService extends BaseService {
     }
 
     
-    public async updateLuckyWheelById(id: number, input: UpdateLuckyWheels): Promise <Boolean>{
-        let payload = underscore.pick(input, LuckyWheelsUpdateable);
+    public async updateLuckyWheelById(id: number, input: UpdateLuckyWheels): Promise <boolean>{
+        const payload = underscore.pick(input, LuckyWheelsUpdateable);
         
         if(Object.keys(payload).length !== 0){
             await this.dbConn.getRepository(LuckyWheels).update(id, payload);
@@ -438,7 +438,7 @@ export class LuckyWheelsService extends BaseService {
         return true;
     }
 
-    public async deleteLuckyWheelById(id: number): Promise <Boolean>{
+    public async deleteLuckyWheelById(id: number): Promise <boolean>{
         await this.dbConn.getRepository(LuckyWheels).update(id, {
             deleted_at: dayjs().format()
         });
@@ -447,7 +447,7 @@ export class LuckyWheelsService extends BaseService {
     }
 
     public async createLuckyWheelPrize(input: CreateLuckyWheelPrizes): Promise <LuckyWheelPrizes | undefined | number>{
-        let luckyWheelPrizes = await this.dbConn.getRepository(LuckyWheelPrizes).save({
+        const luckyWheelPrizes = await this.dbConn.getRepository(LuckyWheelPrizes).save({
             lucky_wheel_id                : input.luckyWheel.id,
             coupon_prize                  : input.coupon_prize,
             coin_prize                    : input.coin_prize,
@@ -464,7 +464,7 @@ export class LuckyWheelsService extends BaseService {
     }
 
     public async getLuckyWheelPrizesById(id: number): Promise<LuckyWheelPrizes | undefined> {
-        let luckyWheelPrizes = await this.dbConn.getRepository(LuckyWheelPrizes)
+        const luckyWheelPrizes = await this.dbConn.getRepository(LuckyWheelPrizes)
             .createQueryBuilder("luckyWheelPrizes")
             .where("luckyWheelPrizes.id = :id", { id: id })
             .andWhere('luckyWheelPrizes.deleted_at IS NULL')
@@ -477,8 +477,8 @@ export class LuckyWheelsService extends BaseService {
         return luckyWheelPrizes;
     }
 
-    public async updateLuckyWheelPrizesById(id: number, input: UpdateLuckyWheelPrizes): Promise <Boolean>{
-        let payload = underscore.pick(input, LuckyWheelPrizesUpdateable);
+    public async updateLuckyWheelPrizesById(id: number, input: UpdateLuckyWheelPrizes): Promise <boolean>{
+        const payload = underscore.pick(input, LuckyWheelPrizesUpdateable);
         
         if(Object.keys(payload).length !== 0){
             await this.dbConn.getRepository(LuckyWheelPrizes).update(id, payload);
@@ -487,7 +487,7 @@ export class LuckyWheelsService extends BaseService {
         return true;
     }
 
-    public async deleteLuckyWheelPrizesById(id: number): Promise <Boolean>{
+    public async deleteLuckyWheelPrizesById(id: number): Promise <boolean>{
         await this.dbConn.getRepository(LuckyWheelPrizes).update(id, {
             deleted_at: dayjs().format()
         });
@@ -555,7 +555,7 @@ export class LuckyWheelsService extends BaseService {
     }
 
     public async userLuckyWheelLog(input: FilterLuckyWheels | null, startDate: string, endDate: string): Promise <[LuckyWheelSessionPrizes[], number]> {
-         let query = this.dbConn.getRepository(LuckyWheelSessionPrizes)
+         const query = this.dbConn.getRepository(LuckyWheelSessionPrizes)
                     .createQueryBuilder('luckyWheelSessionPrizes')
                     .leftJoinAndSelect('luckyWheelSessionPrizes.luckyWheelPrizes', 'luckyWheelPrizes')
                     .leftJoinAndSelect('luckyWheelSessionPrizes.luckyWheelSessions', 'luckyWheelSessions')
@@ -590,7 +590,7 @@ export class LuckyWheelsService extends BaseService {
 
         const raw =  await query.getRawMany();
         // console.log(raw);
-        let [result, total] = [raw, raw.length];
+        const [result, total] = [raw, raw.length];
 
         return [result, total];
     }

@@ -879,6 +879,10 @@ functions:
             method: POST
             cors: true
         - http:
+            path: /auths/login/telegram
+            method: POST
+            cors: true
+        - http:
             path: /aris/tekuton
             method: GET
             cors: true

@@ -39,7 +39,7 @@ export class AffiliateService extends BaseService {
     }
 
     public async affiliateUpgradeRequest(affiliate: Affiliates, input: UpgradeAffiliateRequest): Promise<AffiliateUpgradeRequests | undefined>{
-        let affiliateUpgrade = await this.dbConn.getRepository(AffiliateUpgradeRequests).save({
+        const affiliateUpgrade = await this.dbConn.getRepository(AffiliateUpgradeRequests).save({
             affiliate_id        : affiliate.id,
             previous_benefit_id : affiliate.affiliate_benefit_id,
             name                : input.name,
@@ -59,7 +59,7 @@ export class AffiliateService extends BaseService {
     }
 
     public async AffiliateSocialRequest(input: AffiliateUpgradeSocialsRequest): Promise< AffiliateUpgradeRequestSocials>{
-        let affiliateSocialRequest = await this.dbConn.getRepository(AffiliateUpgradeRequestSocials).save({
+        const affiliateSocialRequest = await this.dbConn.getRepository(AffiliateUpgradeRequestSocials).save({
             affiliate_upgrade_request_id : input.affiliateUpgradeRequests.id,
             type                         : input.type,
             link                         : input.link,
@@ -133,7 +133,7 @@ export class AffiliateService extends BaseService {
     }
 
     public async getAllAffiliateUsers(startDate: string, endDate: string): Promise<AffiliateUsers[]>{
-        let user    = await this.dbConn.getRepository(AffiliateUsers)
+        const user    = await this.dbConn.getRepository(AffiliateUsers)
                     .createQueryBuilder("affiliateUsers")
                     .where("affiliateUsers.deleted_at IS NULL")
                     .andWhere('affiliateUsers.created_at BETWEEN :startDate and :endDate', {startDate, endDate})

@@ -50,7 +50,7 @@ export const affiliateUpgradeRequest: lambda.Handler = async (event: lambda.APIG
     const userService       = new UserService(connection);
     const helperService     = new HelperService();
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -62,17 +62,17 @@ export const affiliateUpgradeRequest: lambda.Handler = async (event: lambda.APIG
         return ResponseService.baseResponseJson(422, 'Payload is incorrect. Please check logs', null);
     }
     // Validate Payload
-    let validator   = new Validator(UpgradeAffiliateRequestRules);
-    let validate    = await validator.validate(parsedBody);
+    const validator   = new Validator(UpgradeAffiliateRequestRules);
+    const validate    = await validator.validate(parsedBody);
     if(validate.status == false){
         return ResponseService.baseResponseJson(422, validate.message, null);
     }
     // End Validate Payload
     // Get Logged User
     let user        = undefined;
-    let rawToken    = event.headers.Authorization;
+    const rawToken    = event.headers.Authorization;
     if (rawToken != undefined) {
-        let token   = authService.sanitizeRawToken(rawToken);
+        const token   = authService.sanitizeRawToken(rawToken);
         user        = await userService.getUserByApiToken(token);
     }
     if (user == null) {
@@ -90,13 +90,13 @@ export const affiliateUpgradeRequest: lambda.Handler = async (event: lambda.APIG
     
     // End Get Logged User
     // reject if user have a pending request and request created at under 7 days
-    let affiliateUpgrade = await userService.getAffiliateUpgradeRequestUserByAffiliateId(affiliate.id)
+    const affiliateUpgrade = await userService.getAffiliateUpgradeRequestUserByAffiliateId(affiliate.id)
     if (affiliateUpgrade?.status == 'pending' || helperService.isOneWeek(affiliateUpgrade?.updated_at)) {
         return ResponseService.baseResponseJson(422, 'You stil have an ongoing upgrade request', null);
     }
     // End reject if user have a pending request and request created at under 7 days
     // Store new affiliate upgrade request
-    let affiliateUpgradeRequest = await affiliateService.affiliateUpgradeRequest(affiliate,parsedBody);
+    const affiliateUpgradeRequest = await affiliateService.affiliateUpgradeRequest(affiliate,parsedBody);
 
     if (affiliateUpgradeRequest === undefined) {
         return ResponseService.baseResponseJson(422, 'Failed to Create request. Please check logs.', null);
@@ -104,11 +104,11 @@ export const affiliateUpgradeRequest: lambda.Handler = async (event: lambda.APIG
     // End Store affiliate upgrade request
     // Store affiliate upgrade request socials
     if (parsedBody.socials) {
-        let socials = parsedBody.socials;
+        const socials = parsedBody.socials;
         for ( const social of socials) {
-            let type = social.type;
-            let link = social.link;
-            let AffiliateSocialRequest = await affiliateService.AffiliateSocialRequest({
+            const type = social.type;
+            const link = social.link;
+            const AffiliateSocialRequest = await affiliateService.AffiliateSocialRequest({
                 affiliateUpgradeRequests : affiliateUpgradeRequest,
                 type                     : type,
                 link                     : link,

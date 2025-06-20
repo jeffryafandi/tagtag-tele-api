@@ -151,7 +151,7 @@ export class TransactionService extends BaseService {
     // }
 
     public async userHistoryLogTransaction(input: FilterTransaction | null, startDate: string, endDate: string): Promise <[Transactions[], number]> {
-        let logs = this.dbConn.getRepository(Transactions)
+        const logs = this.dbConn.getRepository(Transactions)
                     .createQueryBuilder('transaction')
                     .leftJoinAndSelect('transaction.user', 'user')
                     .leftJoinAndSelect('transaction.details', 'details')
@@ -186,7 +186,7 @@ export class TransactionService extends BaseService {
 
         const raw =  await logs.getRawMany();
         // console.log(raw);
-        let [result, total] = [raw, raw.length];
+        const [result, total] = [raw, raw.length];
 
         return [result, total];
     }

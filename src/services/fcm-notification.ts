@@ -41,7 +41,7 @@ export class NotificationService extends BaseService {
     }
 
     public async send(tokens: string[], fcmPayload: BaseNotificationData, data: any = {}, notification: NotificationQueueDataRequest): Promise<Array<string>> {
-        let invalidTokens = [];
+        const invalidTokens = [];
         for (const token of tokens) {
             try {
                 const response: any = await this.firebaseService.sendNotification(token, fcmPayload, data, notification);
@@ -75,7 +75,7 @@ export class NotificationService extends BaseService {
     }
 
     public async handleNotifMessageQueue(messages: NotifMessageQueueRequest[]) {
-        let invalidTokens = [];
+        const invalidTokens = [];
         for (const message of messages) {
             const tokens = await this.send([message.token], message.message, message.data, message.notification);
             invalidTokens.push(tokens);
@@ -113,7 +113,7 @@ export class NotificationService extends BaseService {
     }
 
     public generateWithdrawBodyData(code: string, status: string): {message: string, currency: AvailableWithdrawCurrency} {
-        let itemName = [NOTIF_CODE.WITHDRAW_COIN_FAIL, NOTIF_CODE.WITHDRAW_COIN_SUCCESS].includes(code) ? 'Koin' : 'Komisi';
+        const itemName = [NOTIF_CODE.WITHDRAW_COIN_FAIL, NOTIF_CODE.WITHDRAW_COIN_SUCCESS].includes(code) ? 'Koin' : 'Komisi';
         return {
             message : `Penarikan ${itemName} kamu sebesar [nominal] ${status == 'success' ? 'sudah berhasil!' : 'gagal!'}`,
             currency: (itemName == 'Koin') ? AvailableWithdrawCurrency.coin : AvailableWithdrawCurrency.revenue
@@ -123,7 +123,7 @@ export class NotificationService extends BaseService {
     public generateWithdrawNotifData(notification: FcmNotifications, parameters: any) {
         const status                = this.isWithdrawNotif(notification, true) ? 'success' : 'failed';
         const {message, currency}   = this.generateWithdrawBodyData(notification.code, status);
-        let dataQuery: any  = {
+        const dataQuery: any  = {
             from    : 'withdraw',
             status,
             nominal : parameters.nominal,
@@ -249,7 +249,7 @@ export class NotificationService extends BaseService {
         const allMessages: NotifMessageQueueRequest[] = [];
 
         for (const device of deviceTokens) {
-            let message: BaseNotificationData = {
+            const message: BaseNotificationData = {
                 title   : notificationTitle.replace(':username', device.user ? device.user.username : 'username'),
                 body    : notificationBody.replace(':username', device.user ? device.user.username : 'username')
             }

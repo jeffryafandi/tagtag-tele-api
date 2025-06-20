@@ -49,7 +49,7 @@ export const checkBannedMiddleware = () => {
                 expiredAt.sort((a, b) => b - a);
                 const hasPermanent = expiredAt.findIndex((time) => time == 0);
 
-                let errorData: any = {
+                const errorData: any = {
                     message     : 'Whoops! It looks like someone doing something bad :D',
                     name        : 'Unauthorized!',
                     data        : {
@@ -71,7 +71,7 @@ export const checkBannedMiddleware = () => {
             if (blockedIPsConfig) {
                 const blockedIPS    = JSON.parse(blockedIPsConfig.config_value);
                 if (blockedIPS.includes(clientIp)){
-                    let errorData: any = {
+                    const errorData: any = {
                         message     : 'Whoops! It looks like someone doing something bad :D',
                         name        : 'Unauthorized!',
                         data        : {

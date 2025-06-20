@@ -22,9 +22,9 @@ export const getLuckyWheels: lambda.Handler = async (event: lambda.APIGatewayEve
 
         // Get Logged User
         let user = null;
-        let rawToken = event.headers.Authorization;
+        const rawToken = event.headers.Authorization;
         if(rawToken != undefined){
-            let token = authService.sanitizeRawToken(rawToken);
+            const token = authService.sanitizeRawToken(rawToken);
             user = await userService.getUserByApiToken(token);
         }
 
@@ -33,7 +33,7 @@ export const getLuckyWheels: lambda.Handler = async (event: lambda.APIGatewayEve
         }
         // End Get Logged User
 
-        let luckyWheelsList = await luckyWheelsService.getLuckyWheels(user);
+        const luckyWheelsList = await luckyWheelsService.getLuckyWheels(user);
         return ResponseService.baseResponseJson(200, 'Data fetched successfully', luckyWheelsList);
     });
 }
@@ -48,9 +48,9 @@ export const luckyWheelSpin: lambda.Handler = async (event: lambda.APIGatewayEve
 
         // Get Logged User
         let user = null;
-        let rawToken = event.headers.Authorization;
+        const rawToken = event.headers.Authorization;
         if(rawToken != undefined){
-            let token = authService.sanitizeRawToken(rawToken);
+            const token = authService.sanitizeRawToken(rawToken);
             user = await userService.getUserByApiToken(token);
         }
 
@@ -64,7 +64,7 @@ export const luckyWheelSpin: lambda.Handler = async (event: lambda.APIGatewayEve
         }
         // End Get Logged User
 
-        let spin = await luckyWheelsService.luckyWheelSpin(user);
+        const spin = await luckyWheelsService.luckyWheelSpin(user);
         
         return ResponseService.baseResponseJson(200, 'Request processed successfully', spin);
     });

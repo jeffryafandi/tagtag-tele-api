@@ -17,7 +17,7 @@ export class ReferralService extends BaseService {
     }
 
     public async claimUserReferrals(userId: number): Promise<void> {
-        let claimedPrizes: any  = {
+        const claimedPrizes: any  = {
             coin    : 0,
             coupon  : 0
         };

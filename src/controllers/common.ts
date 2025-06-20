@@ -18,9 +18,9 @@ export const getApplicationConfigurations: lambda.Handler = async (event: lambda
         const dataTrue      = await appConfig.mapAppConfigIsPublic();
         // Get Logged User
         let user = null;
-        let rawToken = event.headers.Authorization;
+        const rawToken = event.headers.Authorization;
         if(rawToken != undefined){
-            let token = authService.sanitizeRawToken(rawToken);
+            const token = authService.sanitizeRawToken(rawToken);
     
             user = await userService.getUserByApiToken(token);
         }

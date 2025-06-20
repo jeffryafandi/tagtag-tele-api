@@ -45,7 +45,7 @@ export const addNewAdForPartner: lambda.Handler = async (event: lambda.APIGatewa
         if (!event.body) throw Error("Body payload cannot be null");
 
         const payload   = JSON.parse(event.body);
-        let validate    = await new Validator(CreatePartnerAdRules).validate(payload);
+        const validate    = await new Validator(CreatePartnerAdRules).validate(payload);
         if (payload.duration && payload.min_watch_time) {
             if (payload.min_watch_time > payload.duration) {
                 validate.status     = false;

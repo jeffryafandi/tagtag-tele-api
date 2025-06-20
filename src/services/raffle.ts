@@ -202,7 +202,7 @@ export class RaffleService extends BaseService {
             
             if (raffle.is_completed) {
                 const winningTickets    = await this.fetchWinningTicket(raffle);
-                let mapWinners: any     = [];
+                const mapWinners: any     = [];
                 await Promise.all(prizes.map(async (prize) => {
                     const foundTicket   = winningTickets.filter((ticket) => ticket.raffle_prize_id == prize.id);
                     const mapWinner     = await this.mapRaffleWinner(foundTicket[0], prize);
@@ -225,7 +225,7 @@ export class RaffleService extends BaseService {
         .getMany();
     }
 
-    public async mapUserRaffleData(user: Users|null): Promise<Object> {
+    public async mapUserRaffleData(user: Users|null): Promise<object> {
         const userId        = user?.id || 0;
         const raffles       = await this.listActiveRaffles();
         const mappedRaffles = await Promise.all(raffles.map(async (raffle) => {
@@ -234,7 +234,7 @@ export class RaffleService extends BaseService {
         return mappedRaffles; 
     }
 
-    public async getRafflesDetailData(raffleId: number, user: Users|null): Promise<Object> {
+    public async getRafflesDetailData(raffleId: number, user: Users|null): Promise<object> {
         const userId = user?.id || 0;
         const raffle = await this.fetchRaffleById(raffleId);
         if (!raffle) return {};
@@ -384,7 +384,7 @@ export class RaffleService extends BaseService {
         console.log('[fetchRandomTicketV2] query:', totalRandomTicketQuery);
 
         let raffleTicketId = null;
-        let result = await this.dbConn.query(totalRandomTicketQuery);
+        const result = await this.dbConn.query(totalRandomTicketQuery);
         if (result.length > 0) {
             const rowData = result[0];
 
@@ -427,7 +427,7 @@ export class RaffleService extends BaseService {
             coupon          : rafflePrize.coupon_prize,
             activity_point  : rafflePrize.activity_point_prize
         }
-        let gameInventoriesWon  = [];
+        const gameInventoriesWon  = [];
 
         await this.userService.update(ticket.user, {
             coupons         : ticket.user.coupons + claimedPrizes.coupon,
@@ -588,7 +588,7 @@ export class RaffleService extends BaseService {
         const raffle        = await this.fetchRaffleById(raffleId);
         if (!user || !userCoupons || !raffle) return false;
 
-        let mappedTickets: Array<RaffleTicketSchema> = [];
+        const mappedTickets: Array<RaffleTicketSchema> = [];
         for (let count = 1; count <= insertedCoupons; count++) {
             mappedTickets.push({
                 raffle_id : raffleId,
@@ -634,7 +634,7 @@ export class RaffleService extends BaseService {
     }
 
     public async userHistoryRaffleWinner(input: FilterRaffle | null): Promise <[Raffles[], number]> {
-        let logs = this.dbConn.getRepository(Raffles)
+        const logs = this.dbConn.getRepository(Raffles)
                     .createQueryBuilder('raffles')
                     .leftJoinAndSelect('raffles.raffleTickets', 'raffleTickets')
                     .leftJoinAndSelect('raffles.rafflePrizes', 'rafflePrizes')
@@ -670,7 +670,7 @@ export class RaffleService extends BaseService {
             }
         }
       
-        let result = await logs.getRawMany();
+        const result = await logs.getRawMany();
 
         return [result, result.length];
 

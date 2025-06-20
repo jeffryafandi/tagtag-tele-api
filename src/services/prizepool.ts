@@ -119,7 +119,7 @@ export class PrizepoolService extends BaseService {
     }
 
     public async deletePrizeDistribution(type: PrizeDistributionsType, prizepool: Prizepools, dailyId: number | undefined = undefined): Promise<void> {
-        let criteria = {
+        const criteria = {
             prizepool_id: prizepool.id,
             prizepool_daily_percentage_id: type === PrizeDistributionsType.daily ? dailyId : 0
         }
@@ -921,7 +921,7 @@ export class PrizepoolService extends BaseService {
         return parsed;
     }
 
-    public async homePrizepools(): Promise<Object> {
+    public async homePrizepools(): Promise<object> {
         const prizepool    = await this.fetchLatestActivePrizepool();
         if (!prizepool) return {};
 
@@ -947,7 +947,7 @@ export class PrizepoolService extends BaseService {
             }
         }
 
-        let result = {
+        const result = {
             id          : prizepool?.id,
             name        : prizepool?.name,
             total_pools : initialPool,
@@ -969,7 +969,7 @@ export class PrizepoolService extends BaseService {
         });
     }
 
-    public async deletePrizepoolIncrementLogById(prizepoolIncrementLogs: PrizepoolIncrementLogs): Promise <Boolean>{
+    public async deletePrizepoolIncrementLogById(prizepoolIncrementLogs: PrizepoolIncrementLogs): Promise <boolean>{
         await this.dbConn.getRepository(PrizepoolIncrementLogs).update(prizepoolIncrementLogs.id, {
             deleted_at: dayjs().format()
         });

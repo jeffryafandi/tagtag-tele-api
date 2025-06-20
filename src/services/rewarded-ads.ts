@@ -22,7 +22,7 @@ export class RewardedAdsService extends BaseService {
         this.vipService             = new VipService(conn);
     }
 
-    public async getRewardedAds(user: Users): Promise<Object> {
+    public async getRewardedAds(user: Users): Promise<object> {
         const allItems = await this.dbConn.getRepository(RewardedAds).find({
             where: { is_active: true }
         });

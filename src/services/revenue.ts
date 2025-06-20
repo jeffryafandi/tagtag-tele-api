@@ -62,7 +62,7 @@ export class RevenueService extends BaseService {
         const endDate       = baseline.end_date;
         const tierings      = await this.benefitService.getAllTierings();
 
-        let mergedUserIds: number[] = user.affiliate ? user.affiliate?.affiliateUsers.map((affiliateUser) => affiliateUser.user_id) : [];
+        const mergedUserIds: number[] = user.affiliate ? user.affiliate?.affiliateUsers.map((affiliateUser) => affiliateUser.user_id) : [];
         // mergedUserIds.push(user.id);
 
         const [ads, count]          = await this.adsLogService.getLogsForUsersByPeriod(mergedUserIds, startDate, endDate);
@@ -324,7 +324,7 @@ export class RevenueService extends BaseService {
     }
 
     public async usersRevenueDetail(input: FilterRevenue | null, startDate: string, endDate: string): Promise <[UserRevenues[], number]> {
-        let logs = this.dbConn.getRepository(UserRevenues)
+        const logs = this.dbConn.getRepository(UserRevenues)
                     .createQueryBuilder('userRevenues')
                     .leftJoinAndSelect('userRevenues.user', 'user')
                     .leftJoinAndSelect('userRevenues.revenueBaseline', 'revenueBaseline')
@@ -353,7 +353,7 @@ export class RevenueService extends BaseService {
             }
         }
       
-        let result = await logs.getRawMany();
+        const result = await logs.getRawMany();
 
         return [result, result.length];
 

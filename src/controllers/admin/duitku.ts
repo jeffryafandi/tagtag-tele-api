@@ -33,7 +33,7 @@ export const fetchUserDuitkuLogs: lambda.Handler = async (event: lambda.APIGatew
      console.log(startDate)
      console.log(endDate)
 
-    let mappedUserDitkuLogs =  await duitkuService.getUsersDuitkuLogs(startDate, endDate);
+    const mappedUserDitkuLogs =  await duitkuService.getUsersDuitkuLogs(startDate, endDate);
 
     return ResponseService.baseResponseJson(200, 'Data fetched successfully', mappedUserDitkuLogs);
 }

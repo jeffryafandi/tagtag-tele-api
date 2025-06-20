@@ -220,7 +220,7 @@ export const duitkuInquiry: lambda.Handler = async (event: lambda.APIGatewayEven
     const connection    = await new Database().getConnection();
     const duitkuService = new DuitkuService(connection);
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -233,7 +233,7 @@ export const duitkuInquiry: lambda.Handler = async (event: lambda.APIGatewayEven
         return ResponseService.baseResponseJson(422, 'Payload is incorrect. Please check logs', null);
     }
 
-    let inquiryResponse = await duitkuService.inquiry({
+    const inquiryResponse = await duitkuService.inquiry({
         amount          : parsedBody.amount,
         bank_account    : parsedBody.bank_account,
         bank_code       : parsedBody.bank_code,
@@ -253,7 +253,7 @@ export const duitkuTransfer: lambda.Handler = async (event: lambda.APIGatewayEve
     const connection    = await new Database().getConnection();
     const duitkuService = new DuitkuService(connection);
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -266,7 +266,7 @@ export const duitkuTransfer: lambda.Handler = async (event: lambda.APIGatewayEve
         return ResponseService.baseResponseJson(422, 'Payload is incorrect. Please check logs', null);
     }
 
-    let transferResponse = await duitkuService.transfer({
+    const transferResponse = await duitkuService.transfer({
         disburse_id     : parsedBody.disburse_id,
         amount          : parsedBody.amount,
         bank_account    : parsedBody.bank_account,
@@ -298,7 +298,7 @@ export const testRaffleQueueSend: lambda.Handler = async (event: lambda.APIGatew
     const body: any     = event.body ? JSON.parse(event.body) : {};
     const coupons       = body?.coupons || 0;
 
-    let mappedTickets: Array<RaffleTicketSchema> = [];
+    const mappedTickets: Array<RaffleTicketSchema> = [];
     for (let count = 1; count <= coupons; count++) {
         mappedTickets.push({
             raffle_id: 11,
@@ -316,7 +316,7 @@ export const testAWDPrepaid: lambda.Handler = async (event: lambda.APIGatewayEve
     const awdService    = new AwdService(connection);
     const helperService = new HelperService();
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -341,10 +341,10 @@ export const midtransAccountValidation: lambda.Handler = async (event: lambda.AP
     const connection    = await new Database().getConnection();
     const midtransService = new MidtransService(connection);
 
-    let queryParams = event.queryStringParameters || {};
+    const queryParams = event.queryStringParameters || {};
     console.log('Query parameters:', queryParams.account);
 
-    let transferResponse = await midtransService.accountValidation({
+    const transferResponse = await midtransService.accountValidation({
         bank: "gopay",
         account: "089658155683"
     });
@@ -360,7 +360,7 @@ export const midtransCreatePayout: lambda.Handler = async (event: lambda.APIGate
     const connection    = await new Database().getConnection();
     const midtransService = new MidtransService(connection);
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -373,7 +373,7 @@ export const midtransCreatePayout: lambda.Handler = async (event: lambda.APIGate
         return ResponseService.baseResponseJson(422, 'Payload is incorrect. Please check logs', null);
     }
 
-    let createPayoutResponse = await midtransService.createPayout({
+    const createPayoutResponse = await midtransService.createPayout({
         payouts : parsedBody.payouts
     });
 
@@ -388,7 +388,7 @@ export const midtransApprovePayout: lambda.Handler = async (event: lambda.APIGat
     const connection    = await new Database().getConnection();
     const midtransService = new MidtransService(connection);
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -401,7 +401,7 @@ export const midtransApprovePayout: lambda.Handler = async (event: lambda.APIGat
         return ResponseService.baseResponseJson(422, 'Payload is incorrect. Please check logs', null);
     }
 
-    let approvePayoutResponse = await midtransService.approvePayout({
+    const approvePayoutResponse = await midtransService.approvePayout({
         reference_nos: parsedBody.reference_nos,
 
     });

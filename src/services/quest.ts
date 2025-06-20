@@ -318,7 +318,7 @@ export class QuestService extends BaseService {
         });
 
         // let coinPrize = (user.stamina < latestQuest.stamina_prize && !latestQuest.is_watched_ad) ? 0 : latestQuest.coin_prize;
-        let coinPrize = latestQuest.coin_prize;
+        const coinPrize = latestQuest.coin_prize;
         const couponPrize       = Math.ceil(this.helperService.toFixNumber(latestQuest.coupon_prize * (rewardMultiplier)));
         const activityPrize     = Math.ceil(this.helperService.toFixNumber(latestQuest.activity_point_prize * (rewardMultiplier)));
         
@@ -360,7 +360,7 @@ export class QuestService extends BaseService {
         const quest = quests[0];
         if (quest.is_claimed) return;
 
-        let rewardMultiplier        = progress.reward_multiplier || 1;
+        const rewardMultiplier        = progress.reward_multiplier || 1;
         let boosterMultiply         = 1;
         let boosterInGame           = 1;
         let boosterShop             = 1;
@@ -438,7 +438,7 @@ export class QuestService extends BaseService {
         const reducedInventories: any = [];
         if (usedGameInventories.length > 0) {
             usedGameInventories.sort();
-            let inventories: any = {};
+            const inventories: any = {};
             progress.game_inventory_codes.map((code: string) => {
                 if (inventories[code]) {
                     inventories[code] = inventories[code] + 1;

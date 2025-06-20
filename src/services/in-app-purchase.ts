@@ -84,8 +84,8 @@ export class InAppPurchaseService extends BaseService {
                 coin    : content?.coin || 0,
                 coupon  : content?.coupon || 0
             };
-            let boughtInventories   = [];
-            let boughtFreeAds       = [];
+            const boughtInventories   = [];
+            const boughtFreeAds       = [];
             
             await this.userService.update(user, {
                 coins   : user.coins + boughtByUser.coin,
@@ -359,7 +359,7 @@ export class InAppPurchaseService extends BaseService {
         const product = await this.getInAppProductByExtId(schema.ext_product_id);
         const currentTimestamp = dayjs().valueOf()
         let statusCode = 200
-        let status = 'FAILED'
+        const status = 'FAILED'
         
         if (schema.ext_token) {
             const existingPurchase = await this.getPurchaseByToken(schema.ext_token);
@@ -427,7 +427,7 @@ export class InAppPurchaseService extends BaseService {
                 coupon  : content?.coupon || 0
             };
 
-            let substractedInventories  = [];
+            const substractedInventories  = [];
             await this.userService.update(user, {
                 coins   : user.coins - revertedContent?.coin,
                 coupons : user.coupons - revertedContent?.coupon
@@ -585,7 +585,7 @@ export class InAppPurchaseService extends BaseService {
 
                         const product = await this.getInAppProductByExtId(purchase.ext_product_id);
 
-                        let notificationParams: any     = {
+                        const notificationParams: any     = {
                             product_name: product?.name || 'Unknown Product',
                             product_price: product?.price,
                             order_id: purchase.order_id

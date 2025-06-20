@@ -33,7 +33,7 @@ export const fetchUserAwdLogs: lambda.Handler = async (event: lambda.APIGatewayE
      console.log(startDate)
      console.log(endDate)
 
-    let mappedUserAwdLogs =  await awdService.getUsersAwdLogs(startDate, endDate);
+    const mappedUserAwdLogs =  await awdService.getUsersAwdLogs(startDate, endDate);
 
     return ResponseService.baseResponseJson(200, 'Data fetched successfully', mappedUserAwdLogs);
 }

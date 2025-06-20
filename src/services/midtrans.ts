@@ -104,12 +104,12 @@ export class MidtransService {
 
     public async callAPIMiniApp(payload: object, endpoint: string, type: string, queryString: string): Promise <[success: boolean, message: string, data: any | undefined]>{
         this.checkConfiguration();
-        let url = this.urlGopayMiniApp;
+        const url = this.urlGopayMiniApp;
 
         let apiKey;
         apiKey = this.GopayClientCredential
 
-        let headers = {
+        const headers = {
             "Content-Type": "application/json",
             "Authorization": `Basic ${apiKey}`
         };
@@ -185,7 +185,7 @@ export class MidtransService {
         } = { accessToken: "", path: "" }
     ): Promise <[success: boolean, message: string, data: any | undefined]>{
         this.checkConfiguration();
-        let url = (type === "miniAppToken") 
+        const url = (type === "miniAppToken") 
             ? this.urlGopayMiniApp 
         : (type === "accessToken" || type === "directDebit") 
             ? this.BISnapUrl 
@@ -435,7 +435,7 @@ vFzDiwYOuP2I+yE0wyUBae0=
 
         const queryString = new URLSearchParams(Object.entries(input)).toString();
 
-        let payload = {};
+        const payload = {};
 
         const [success, message, data] = await this.callAPI(payload, `${this.accountValidationEndpoint}`, "accountvalidation", queryString);
 
@@ -445,7 +445,7 @@ vFzDiwYOuP2I+yE0wyUBae0=
     public async createPayout(input: MidtransCreatePayoutRequest): Promise<{success: boolean, data: any}>{
         this.checkConfiguration();
 
-        let payload = {
+        const payload = {
             "payouts": input.payouts
         };
 
@@ -457,7 +457,7 @@ vFzDiwYOuP2I+yE0wyUBae0=
     public async approvePayout(input: MidtransApproveRequestRequest): Promise<{success: boolean, data: any}>{
         this.checkConfiguration();
 
-        let payload = {
+        const payload = {
             "reference_nos": input.reference_nos
         };
 
@@ -469,7 +469,7 @@ vFzDiwYOuP2I+yE0wyUBae0=
     public async midtransMerchantOpenApiAccessToken(path: string): Promise<{success: boolean, data: any}> {
         this.checkConfiguration();
         
-        let payload = {
+        const payload = {
             "grantType": "client_credentials"
         };
 
@@ -489,7 +489,7 @@ vFzDiwYOuP2I+yE0wyUBae0=
     public async miniAppToken(auth_code: string): Promise<{success: boolean, data: any}>{
         this.checkConfiguration();
 
-        let payload = {
+        const payload = {
             "auth_code": auth_code
         };
 
@@ -501,7 +501,7 @@ vFzDiwYOuP2I+yE0wyUBae0=
     public async midtransAccessToken(): Promise<{success: boolean, data: any}> {
         this.checkConfiguration();
         
-        let payload = {
+        const payload = {
             "grantType": "client_credentials"
         };
 
@@ -521,7 +521,7 @@ vFzDiwYOuP2I+yE0wyUBae0=
             throw new Error("Required config values are missing");
         }
         
-        let payload = {
+        const payload = {
             "partnerReferenceNo": orderId,
             "chargeToken": accessToken,
             "urlParam": [

@@ -5,7 +5,7 @@ import { BaseService } from "./base";
 export class AffiliateBenefitService extends BaseService {
     public async getBenefitList(filter: benefitAvailableFilter | undefined = undefined): Promise<AffiliateBenefits[]> {
         const query     = this.dbConn.getRepository(AffiliateBenefits).createQueryBuilder('affiliateBenefits');
-        let applyFilter = {deleted_at: null};
+        const applyFilter = {deleted_at: null};
 
         if (filter) {
             Object.keys(filter).map((field: any) => {

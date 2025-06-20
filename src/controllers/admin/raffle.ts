@@ -22,9 +22,9 @@ export const userHistoryLogRaffleWinners: lambda.Handler = async (event: lambda.
     const connection            = await new Database().getConnection();
     const helperService         = new HelperService();
     const raffleServices        = new RaffleService(connection);
-    let filters                 = event.queryStringParameters;
+    const filters                 = event.queryStringParameters;
 
-    let [mappedUserLogs, total] =  await raffleServices.userHistoryRaffleWinner(filters);
+    const [mappedUserLogs, total] =  await raffleServices.userHistoryRaffleWinner(filters);
     const mapped = mappedUserLogs.map((userLog: any) => {
         const data = {
             raffle_id             : Number(userLog.raffles_id),

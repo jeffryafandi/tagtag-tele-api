@@ -40,7 +40,7 @@ export const gopayPaymentNotification: lambda.Handler = async (event: lambda.API
         const inAppService      = new InAppPurchaseService(connection);
         const userService       = new UserService(connection);
 
-        let body = event.body;
+        const body = event.body;
         if(body == null){
             return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
         }

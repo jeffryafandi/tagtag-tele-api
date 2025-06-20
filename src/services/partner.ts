@@ -31,7 +31,7 @@ export class PartnerService extends BaseService {
             ORDER BY RAND() limit 1;
         `;
         let partnerAdId = 0;
-        let result      = await this.dbConn.query(randomAds);
+        const result      = await this.dbConn.query(randomAds);
 
         if (result.length > 0) {
             const rowData   = result[0];

@@ -11,7 +11,7 @@ export class Validator {
 
     public generateErrorMessage(errorItem: ValidationError, errorMessage: string = '', currentProperty = ''): string {
         let message = '';
-        let props = currentProperty ? `${currentProperty}.${errorItem.property}` : errorItem.property;
+        const props = currentProperty ? `${currentProperty}.${errorItem.property}` : errorItem.property;
         
         if (errorItem.constraints) {
             const constraint = errorItem.constraints;

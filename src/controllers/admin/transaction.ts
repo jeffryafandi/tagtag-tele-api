@@ -24,7 +24,7 @@ export const userHistoryLogTransaction: lambda.Handler = async (event: lambda.AP
     const transactionService    = new TransactionService(connection);
     let startDate               = event.queryStringParameters?.startDate;
     let endDate                 = event.queryStringParameters?.endDate;
-    let filters = {
+    const filters = {
         startDate,
         endDate,
         page: Number(event.queryStringParameters?.page || 1)
@@ -39,7 +39,7 @@ export const userHistoryLogTransaction: lambda.Handler = async (event: lambda.AP
     console.log(startDate)
     console.log(endDate)
 
-    let [mappedUserLogs, total] =  await transactionService.userHistoryLogTransaction(filters, startDate, endDate);
+    const [mappedUserLogs, total] =  await transactionService.userHistoryLogTransaction(filters, startDate, endDate);
     const mapped = mappedUserLogs.map((userLog: any) => {
         const data = {
             id          : Number(userLog.transaction_id),
@@ -52,7 +52,7 @@ export const userHistoryLogTransaction: lambda.Handler = async (event: lambda.AP
             updated_at  : userLog.transaction_updated_at,
             details: []
         }
-        let details: any = [];
+        const details: any = [];
         if (userLog.details_type || userLog.details_value || userLog.details_currency) {
             details.push({
                 type     : userLog.details_type,

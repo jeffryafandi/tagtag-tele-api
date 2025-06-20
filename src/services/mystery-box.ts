@@ -96,7 +96,7 @@ export class MysteryBoxService extends BaseService {
                 const currDist  = filtered[0];
                 currentValue    = Math.floor(currDist.value * dailyPool);
             } else {
-                let total       = {total_winners: 0, value: 0}
+                const total       = {total_winners: 0, value: 0}
                 JSON.parse(config.daily_distributions).map((data: any) => {
                     const value         = data.total_winners * data.value;
                     total.value         += value;

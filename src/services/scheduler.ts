@@ -476,7 +476,7 @@ export class SchedulerService extends BaseService {
             }
         });
 
-        let finalData: PrizepoolLeaderboardResponse = Object.assign(data, {
+        const finalData: PrizepoolLeaderboardResponse = Object.assign(data, {
             leaderboards: currWinners
         });
 

@@ -24,14 +24,14 @@ export class TelegramService {
             return false;
         }
         
-        let urlString = `${baseUrl}/bot${ApiToken}/sendMessage?chat_id=${channelName}&text=${text}`;
+        const urlString = `${baseUrl}/bot${ApiToken}/sendMessage?chat_id=${channelName}&text=${text}`;
         const response = await this.helperService.get<ITelegramSendMessageResponse>(urlString);
         console.log("Finish Sending message to Telegram: ", response)
         return true;
     }
 
 
-    public async sendMessageAwdLog(user: Users, awdLog: AwdLogs | any): Promise<Boolean>{
+    public async sendMessageAwdLog(user: Users, awdLog: AwdLogs | any): Promise<boolean>{
         const config        = JSON.parse(fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf8'));
         const message = "\
 👹 Error on AWD Transactions 🔥\n\n\

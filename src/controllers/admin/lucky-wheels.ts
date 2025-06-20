@@ -21,9 +21,9 @@ export const luckyWheelList: lambda.Handler = async (event: lambda.APIGatewayEve
     const helperService         = new HelperService();   
     const luckyWheelsService    = new LuckyWheelsService(connection);   
     
-    let filters = event.queryStringParameters;
+    const filters = event.queryStringParameters;
 
-    let [mappedList, total] = await luckyWheelsService.getLuckyWheelList(filters);
+    const [mappedList, total] = await luckyWheelsService.getLuckyWheelList(filters);
     return ResponseService.baseResponseJson(200, 'Request processed successfully', mappedList, helperService.generatePagination(event, total));
 }
 
@@ -33,7 +33,7 @@ export const luckyWheelDetail: lambda.Handler = async (event: lambda.APIGatewayE
     const luckyWheelId          = event.pathParameters?.luckyWheelId;
     if (!luckyWheelId || isNaN(Number(luckyWheelId))) throw Error('Invalid value for lucky wheel id parameter');
 
-      let luckyWheel = await luckyWheelsService.getLuckyWheelByIdMapped(Number(luckyWheelId));
+      const luckyWheel = await luckyWheelsService.getLuckyWheelByIdMapped(Number(luckyWheelId));
 
       if(luckyWheel == undefined){
           return ResponseService.baseResponseJson(404, 'Lucky Wheel not found', null);
@@ -46,7 +46,7 @@ export const createLuckyWheel: lambda.Handler = async (event: lambda.APIGatewayE
     const connection            = await new Database().getConnection();
     const luckyWheelsService    = new LuckyWheelsService(connection);
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -60,14 +60,14 @@ export const createLuckyWheel: lambda.Handler = async (event: lambda.APIGatewayE
     }
     
     // Validate Payload
-    let validator = new Validator(CreateLuckyWheel);
+    const validator = new Validator(CreateLuckyWheel);
 
-    let validate = await validator.validate(parsedBody);
+    const validate = await validator.validate(parsedBody);
     if(validate.status == false){
         return ResponseService.baseResponseJson(422, validate.message, null);
     }
 
-    let luckyWheel = await luckyWheelsService.createLuckyWheel(parsedBody);
+    const luckyWheel = await luckyWheelsService.createLuckyWheel(parsedBody);
 
     if(luckyWheel == undefined){
         return ResponseService.baseResponseJson(422, 'Create luckyWheel failed. Please check logs.', null);
@@ -83,7 +83,7 @@ export const updateLuckyWheel: lambda.Handler = async (event: lambda.APIGatewayE
     const luckyWheelId          = event.pathParameters?.luckyWheelId;
     if (!luckyWheelId || isNaN(Number(luckyWheelId))) throw Error('Invalid value for lucky wheel id parameter');
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -96,13 +96,13 @@ export const updateLuckyWheel: lambda.Handler = async (event: lambda.APIGatewayE
         return ResponseService.baseResponseJson(422, 'Payload is incorrect. Please check logs', null);
     }
     
-    let luckyWheel = await luckyWheelsService.getLuckyWheelById(Number(luckyWheelId));
+    const luckyWheel = await luckyWheelsService.getLuckyWheelById(Number(luckyWheelId));
     
     if(luckyWheel == undefined){
         return ResponseService.baseResponseJson(404, 'Lucky Wheel not found', null);
     }
 
-    let luckyWheelUpdate = await luckyWheelsService.updateLuckyWheelById(luckyWheel.id, parsedBody);
+    const luckyWheelUpdate = await luckyWheelsService.updateLuckyWheelById(luckyWheel.id, parsedBody);
 
     if(luckyWheelUpdate == undefined){
         return ResponseService.baseResponseJson(422, 'Create luckyWheel failed. Please check logs.', null);
@@ -119,13 +119,13 @@ export const deleteLuckyWheel: lambda.Handler = async (event: lambda.APIGatewayE
     const luckyWheelId          = event.pathParameters?.luckyWheelId;
     if (!luckyWheelId || isNaN(Number(luckyWheelId))) throw Error('Invalid value for lucky wheel id parameter');
     
-    let luckyWheel = await luckyWheelsService.getLuckyWheelById(Number(luckyWheelId));
+    const luckyWheel = await luckyWheelsService.getLuckyWheelById(Number(luckyWheelId));
     
     if(luckyWheel == undefined){
         return ResponseService.baseResponseJson(404, 'Lucky Wheel not found', null);
     }
     
-    let luckyWheelDelete = await luckyWheelsService.deleteLuckyWheelById(luckyWheel.id);
+    const luckyWheelDelete = await luckyWheelsService.deleteLuckyWheelById(luckyWheel.id);
     
     if(luckyWheelDelete == undefined){
         return ResponseService.baseResponseJson(422, 'Create luckyWheel failed. Please check logs.', null);
@@ -142,7 +142,7 @@ export const createLuckyWheelPrizes: lambda.Handler = async (event: lambda.APIGa
     const luckyWheelId          = event.pathParameters?.luckyWheelId;
     if (!luckyWheelId || isNaN(Number(luckyWheelId))) throw Error('Invalid value for lucky wheel id parameter');
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -155,13 +155,13 @@ export const createLuckyWheelPrizes: lambda.Handler = async (event: lambda.APIGa
         return ResponseService.baseResponseJson(422, 'Payload is incorrect. Please check logs', null);
     }
     
-    let luckyWheel = await luckyWheelsService.getLuckyWheelById(Number(luckyWheelId));
+    const luckyWheel = await luckyWheelsService.getLuckyWheelById(Number(luckyWheelId));
     
     if(luckyWheel == undefined){
         return ResponseService.baseResponseJson(404, 'Lucky Wheel not found', null);
     }
 
-    let luckyWheelUpdate = await luckyWheelsService.createLuckyWheelPrize({
+    const luckyWheelUpdate = await luckyWheelsService.createLuckyWheelPrize({
         luckyWheel                    : luckyWheel,
         coupon_prize                  : parsedBody.coupon_prize,
         coin_prize                    : parsedBody.coin_prize,
@@ -185,7 +185,7 @@ export const updateLuckyWheelPrizes: lambda.Handler = async (event: lambda.APIGa
     const luckyWheelPrizeId          = event.pathParameters?.luckyWheelPrizeId;
     if (!luckyWheelPrizeId || isNaN(Number(luckyWheelPrizeId))) throw Error('Invalid value for lucky wheel id parameter');
 
-    let body = event.body;
+    const body = event.body;
     if(body == null){
         return ResponseService.baseResponseJson(422, 'Payload must be filled', null);
     }
@@ -198,13 +198,13 @@ export const updateLuckyWheelPrizes: lambda.Handler = async (event: lambda.APIGa
         return ResponseService.baseResponseJson(422, 'Payload is incorrect. Please check logs', null);
     }
     
-    let luckyWheelPrizes = await luckyWheelsService.getLuckyWheelPrizesById(Number(luckyWheelPrizeId));
+    const luckyWheelPrizes = await luckyWheelsService.getLuckyWheelPrizesById(Number(luckyWheelPrizeId));
     
     if(luckyWheelPrizes == undefined){
         return ResponseService.baseResponseJson(404, 'Lucky Wheel not found', null);
     }
 
-    let luckyWheelUpdate = await luckyWheelsService.updateLuckyWheelPrizesById(luckyWheelPrizes.id, parsedBody);
+    const luckyWheelUpdate = await luckyWheelsService.updateLuckyWheelPrizesById(luckyWheelPrizes.id, parsedBody);
 
     if(luckyWheelUpdate == undefined){
         return ResponseService.baseResponseJson(422, 'Update luckyWheel Prize failed. Please check logs.', null);
@@ -220,13 +220,13 @@ export const deleteLuckyWheelPrizes: lambda.Handler = async (event: lambda.APIGa
     const luckyWheelPrizeId          = event.pathParameters?.luckyWheelPrizeId;
     if (!luckyWheelPrizeId || isNaN(Number(luckyWheelPrizeId))) throw Error('Invalid value for lucky wheel id parameter');
     
-    let luckyWheelPrizes = await luckyWheelsService.getLuckyWheelPrizesById(Number(luckyWheelPrizeId));
+    const luckyWheelPrizes = await luckyWheelsService.getLuckyWheelPrizesById(Number(luckyWheelPrizeId));
     
     if(luckyWheelPrizes == undefined){
         return ResponseService.baseResponseJson(404, 'Lucky Wheel Pizes not found', null);
     }
     
-    let luckyWheelDelete = await luckyWheelsService.deleteLuckyWheelPrizesById(luckyWheelPrizes.id);
+    const luckyWheelDelete = await luckyWheelsService.deleteLuckyWheelPrizesById(luckyWheelPrizes.id);
     
     if(luckyWheelDelete == undefined){ 
         return ResponseService.baseResponseJson(422, 'Delete luckyWheel Prizes failed. Please check logs.', null);
@@ -252,8 +252,8 @@ export const getLuckyWheelLog: lambda.Handler = async (event: lambda.APIGatewayE
     const luckyWheelsService    = new LuckyWheelsService(connection);
     let startDate         = event.queryStringParameters?.startDate;
     let endDate           = event.queryStringParameters?.endDate;
-    let luckyWheelId      = event.queryStringParameters?.luckyWheelId;
-    let filters           = event.queryStringParameters;
+    const luckyWheelId      = event.queryStringParameters?.luckyWheelId;
+    const filters           = event.queryStringParameters;
 
     if (!endDate) {
         endDate = dayjs().format('YYYY-MM-DD');
@@ -264,7 +264,7 @@ export const getLuckyWheelLog: lambda.Handler = async (event: lambda.APIGatewayE
      console.log(startDate)
      console.log(endDate)
 
-    let [mapped, total] = await luckyWheelsService.userLuckyWheelLog(filters, startDate, endDate)
+    const [mapped, total] = await luckyWheelsService.userLuckyWheelLog(filters, startDate, endDate)
 
 
     return ResponseService.baseResponseJson(200, 'Success', mapped, helperService.generatePagination(event, total))

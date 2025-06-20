@@ -136,7 +136,7 @@ export const createPayment: lambda.Handler = async (event: lambda.APIGatewayEven
         return ResponseService.baseResponseJson(422, 'Midtrans Direct Debit is failed', { error: true });
     }
 
-    let purchaseSchema: InAppPurchaseSchemaGopay = {
+    const purchaseSchema: InAppPurchaseSchemaGopay = {
         user_id: user.id,
         ext_product_id: product.ext_product_id,
         ext_token: midtransDirectDebit.data.referenceNo,

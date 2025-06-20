@@ -24,7 +24,7 @@ export const usersRevenueDetail: lambda.Handler = async (event: lambda.APIGatewa
     const revenueService = new RevenueService(connection);
     let startDate        = event.queryStringParameters?.startDate;
     let endDate          = event.queryStringParameters?.endDate;
-    let filters = {
+    const filters = {
         startDate,
         endDate,
         page: Number(event.queryStringParameters?.page || 1)
@@ -41,7 +41,7 @@ export const usersRevenueDetail: lambda.Handler = async (event: lambda.APIGatewa
     console.log(startDate)
     console.log(endDate)
 
-    let [mappedUserRevenue, total] =  await revenueService.usersRevenueDetail(filters, startDate, endDate);
+    const [mappedUserRevenue, total] =  await revenueService.usersRevenueDetail(filters, startDate, endDate);
     
     return ResponseService.baseResponseJson(200, 'Data fetched successfully', mappedUserRevenue, helperService.generatePagination(event, total));
 }

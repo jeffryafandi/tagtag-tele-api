@@ -35,7 +35,7 @@ export class VipService extends BaseService{
         this.endDate = this.helperService.substractHours(`${this.todayDate} 23:59:59`, 7);
     }
 
-    public async getVipRewards(user: Users): Promise<Object> {
+    public async getVipRewards(user: Users): Promise<object> {
         this.initializeDates();
         
         const vipPointDaily = await this.dbConn
@@ -255,7 +255,7 @@ export class VipService extends BaseService{
         }
     }
 
-    public async getVipQuest(user: Users): Promise<Object> {
+    public async getVipQuest(user: Users): Promise<object> {
         const userAllQuest = await this.getUserVipQuestList(user.id);
         const claimedQuest = userAllQuest.filter((userVipQuests) => {
             return userVipQuests.is_claimed;

@@ -110,7 +110,7 @@ export const homePrizepools: lambda.Handler = async (event: lambda.APIGatewayEve
     return await helperService.withConnection(async (connection) => {
         const prizepoolService  = new PrizepoolService(connection);
 
-        let prizepools = await prizepoolService.homePrizepools();
+        const prizepools = await prizepoolService.homePrizepools();
 
         return ResponseService.baseResponseJson(200, 'Data fetched successfully', prizepools);
     });

@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 export class SQSService {
     public async sendSQSMessage(queueName: string, accessKeyId: string, secretAccessKey: string, messageBody: string, region = 'ap-southeast-1') {
         const timestamp     = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
-        let request: any    = {
+        const request: any    = {
             path: `/${process.env.AWS_ACCOUNT_ID_ENV}/${queueName}`,
             method: 'POST',
             headers: {

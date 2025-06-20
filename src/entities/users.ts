@@ -1,4 +1,14 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, JoinColumn, OneToOne, ManyToMany, JoinTable } from "typeorm";
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  OneToOne,
+  ManyToMany,
+  JoinTable,
+} from "typeorm";
 import { AffiliateUsers } from "./affiliate-users";
 import { Affiliates } from "./affiliates";
 import { DailyLoginUsers } from "./daily-login-users";
@@ -25,260 +35,276 @@ import { InAppPurchases } from "./in-app-purchases";
 import { UserVipQuests } from "./user-vip-quests";
 
 export const UserFillable = [
-    'username',
-    'password',
-    'name',
-    'email',
-    'phone_number',
-    'google_id',
-    'fb_id',
-    'api_token',
-    'otp_token',
-    'avatar',
-    'coupons',
-    'activity_points',
-    'coins',
-    'activity_points',
-    'is_confirmed',
-    'confirm_otp_token',
-    'change_email_otp_token',
-    'temp_change_email',
-    'reset_password_token',
-    'lucky_wheel_spin_entries',
-    'is_active',
-    'referred_user_id',
-    'withdrawable_amount',
-    'free_ads_until',
-    'free_ads_product_name',
-    'gopay_id',
-    'vip'
+  "username",
+  "password",
+  "name",
+  "email",
+  "phone_number",
+  "google_id",
+  "fb_id",
+  "api_token",
+  "otp_token",
+  "avatar",
+  "coupons",
+  "activity_points",
+  "coins",
+  "activity_points",
+  "is_confirmed",
+  "confirm_otp_token",
+  "change_email_otp_token",
+  "temp_change_email",
+  "reset_password_token",
+  "lucky_wheel_spin_entries",
+  "is_active",
+  "referred_user_id",
+  "withdrawable_amount",
+  "free_ads_until",
+  "free_ads_product_name",
+  "gopay_id",
+  "telegram_id",
+  "vip",
 ];
 
 export const UserUpdateable = [
-    'username',
-    'password',
-    'name',
-    'email',
-    'phone_number',
-    'google_id',
-    'fb_id',
-    'api_token',
-    'otp_token',
-    'avatar',
-    'coupons',
-    'activity_points',
-    'coins',
-    'activity_points',
-    'is_confirmed',
-    'confirm_otp_token',
-    'change_email_otp_token',
-    'temp_change_email',
-    'reset_password_token',
-    'lucky_wheel_spin_entries',
-    'is_active',
-    'referred_user_id',
-    'withdrawable_amount',
-    'complete_quest_claimed',
-    'can_claim_mystery_box',
-    'free_ads_until',
-    'free_ads_product_name',
-    'gopay_id',
-    'vip'
+  "username",
+  "password",
+  "name",
+  "email",
+  "phone_number",
+  "google_id",
+  "fb_id",
+  "api_token",
+  "otp_token",
+  "avatar",
+  "coupons",
+  "activity_points",
+  "coins",
+  "activity_points",
+  "is_confirmed",
+  "confirm_otp_token",
+  "change_email_otp_token",
+  "temp_change_email",
+  "reset_password_token",
+  "lucky_wheel_spin_entries",
+  "is_active",
+  "referred_user_id",
+  "withdrawable_amount",
+  "complete_quest_claimed",
+  "can_claim_mystery_box",
+  "free_ads_until",
+  "free_ads_product_name",
+  "gopay_id",
+  "telegram_id",
+  "vip",
 ];
 
 @Entity()
 export class Users {
-    @PrimaryGeneratedColumn()
-    id!: number;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
-    @Column()
-    username!: string;
-   
-    @Column()
-    referred_user_id!: number;
+  @Column()
+  username!: string;
 
-    @Column()
-    password!: string;
-   
-    @Column()
-    name!: string;
+  @Column()
+  referred_user_id!: number;
 
-    @Column()
-    email!: string;
-   
-    @Column()
-    phone_number!: string;
+  @Column()
+  password!: string;
 
-    @Column()
-    google_id!: string;
-    
-    @Column()
-    fb_id!: string;
+  @Column()
+  name!: string;
 
-    @Column()
-    coins!: number;
+  @Column()
+  email!: string;
 
-    @Column()
-    api_token!: string;
-    
-    @Column()
-    otp_token!: string;
-    
-    @Column()
-    avatar!: number;
-    
-    @Column()
-    coupons!: number;
-   
-    @Column()
-    activity_points!: number;
-    
-    @Column()
-    is_confirmed!: boolean;
+  @Column()
+  phone_number!: string;
 
-    @Column()
-    confirm_otp_token!: string;
+  @Column()
+  google_id!: string;
 
-    @Column()
-    change_email_otp_token!: string;
-    
-    @Column()
-    temp_change_email!: string;
-    
-    @Column()
-    reset_password_token!: string;
+  @Column()
+  fb_id!: string;
 
-    @Column()
-    lucky_wheel_spin_entries!: number;
-    
-    @Column()
-    is_active!: boolean;
-    
-    @Column()
-    user_verification_id!: number;
-    
-    @Column()
-    user_pin_id?: number;
+  @Column()
+  coins!: number;
 
-    @Column({ type: 'float' })
-    withdrawable_amount!: number;
+  @Column()
+  api_token!: string;
 
-    @Column()
-    complete_quest_claimed!: boolean;
+  @Column()
+  otp_token!: string;
 
-    @Column()
-    can_claim_mystery_box!: boolean;
+  @Column()
+  avatar!: number;
 
-    @Column()
-    gopay_number!: string;
+  @Column()
+  coupons!: number;
 
-    @Column()
-    stamina!: number;
+  @Column()
+  activity_points!: number;
 
-    @Column("timestamp")
-    free_ads_until?: string;
+  @Column()
+  is_confirmed!: boolean;
 
-    @Column()
-    free_ads_product_name!: string;
+  @Column()
+  confirm_otp_token!: string;
 
-    @Column()
-    gopay_id!: string;
+  @Column()
+  change_email_otp_token!: string;
 
-    @Column()
-    vip!: boolean;
+  @Column()
+  temp_change_email!: string;
 
-    @Column()
-    vip_points!: number;
+  @Column()
+  reset_password_token!: string;
 
-    @Column("timestamp")
-    created_at!: string;
+  @Column()
+  lucky_wheel_spin_entries!: number;
 
-    @Column("timestamp")
-    updated_at?: string;
+  @Column()
+  is_active!: boolean;
 
-    @Column("timestamp")
-    deleted_at?: string;
-    
-    // Relations
-    @OneToMany(type => UserAddresess, userAddresess => userAddresess.user)
-    userAddresess?: UserAddresess[];
-    
-    @OneToMany(type => UserQuests, userQuests => userQuests.user)
-    userQuests?: UserQuests[];
-   
-    @OneToMany(type => UserMissions, userMissions => userMissions.user)
-    userMissions?: UserMissions[];
-    
-    @OneToMany(type => UserGameInventories, userGameInventories => userGameInventories.user)
-    userGameInventories?: UserGameInventories[];
-   
-    @OneToMany(type => DailyLoginUsers, dailyLoginUsers => dailyLoginUsers.user)
-    dailyLoginUsers?: DailyLoginUsers[];
-   
-    @OneToOne(type => Affiliates, affiliates => affiliates.user)
-    affiliate?: Affiliates;
-   
-    @OneToMany(type => AffiliateUsers, affiliateUsers => affiliateUsers.user)
-    affiliateUsers!: AffiliateUsers[];
-   
-    @OneToMany(type => Transactions, transactions => transactions.user)
-    transactions?: Transactions[];
+  @Column()
+  user_verification_id!: number;
 
-    @OneToMany(type => AdsLogs, adsLogs => adsLogs.user)
-    adsLogs?: AdsLogs[];
+  @Column()
+  user_pin_id?: number;
 
-    @OneToMany(type => LuckyWheelSessions, session => session.user)
-    luckyWheelSessions?: LuckyWheelSessions[];
+  @Column({ type: "float" })
+  withdrawable_amount!: number;
 
-    @OneToMany(type => UserRevenues, userRevenue => userRevenue.user)
-    userRevenues!: UserRevenues[];
-  
-    @OneToMany(type => RaffleTickets, raffleTickets => raffleTickets.user)
-    raffleTickets!: RaffleTickets[];
+  @Column()
+  complete_quest_claimed!: boolean;
 
-    @OneToMany(type => RaffleParticipations, raffleParticipations => raffleParticipations.user)
-    participations!: RaffleParticipations[];
+  @Column()
+  can_claim_mystery_box!: boolean;
 
-    @OneToMany(type => UserBanks, bank => bank.user)
-    userBanks!: UserBanks[];
+  @Column()
+  gopay_number!: string;
 
-    @OneToMany(type => UserBans, banned => banned.user)
-    bans!: UserBans[];
+  @Column()
+  stamina!: number;
 
-    @OneToMany(type => UserDevices, device => device.user)
-    userDevices!: UserDevices[];
+  @Column("timestamp")
+  free_ads_until?: string;
 
-    @OneToMany(type => UserWithdraws, userWithdraw => userWithdraw.user)
-    userWithdraws?: UserWithdraws[];
+  @Column()
+  free_ads_product_name!: string;
 
+  @Column()
+  gopay_id!: string;
 
-    @OneToOne(type => UserVerifications, verification => verification.user)
-    @JoinColumn({
-        name: 'user_verification_id'
-    })
-    verification?: UserVerifications
+  @Column()
+  telegram_id!: string;
 
-    @OneToOne(type => UserPins, user_pin => user_pin.user)
-    @JoinColumn({
-        name: 'user_pin_id'
-    })
-    userPin?: UserPins
+  @Column()
+  vip!: boolean;
 
-    @OneToMany(type => OperatorPurchases, operatorPurchase => operatorPurchase.user)
-    purchaseOperators!: OperatorPurchases[];
+  @Column()
+  vip_points!: number;
 
-    @OneToMany(type => UserFriends, userFriend => userFriend.owner)
-    userFriends!: UserFriends[];
+  @Column("timestamp")
+  created_at!: string;
 
-    @OneToMany(type => UserFriends, userFriend => userFriend.friendDetail)
-    friends!: UserFriends[];
+  @Column("timestamp")
+  updated_at?: string;
 
-    @OneToMany(type => UserActivities, userActivities => userActivities.user)
-    activities!: UserActivities[];
+  @Column("timestamp")
+  deleted_at?: string;
 
-    @OneToMany(type => InAppPurchases, inAppPurchases => inAppPurchases.user)
-    inAppPurchases!: InAppPurchases[];
+  // Relations
+  @OneToMany((type) => UserAddresess, (userAddresess) => userAddresess.user)
+  userAddresess?: UserAddresess[];
 
-    @OneToMany(type => UserVipQuests, userVipQuests => userVipQuests.user)
-    userVipQuests?: UserVipQuests[];
+  @OneToMany((type) => UserQuests, (userQuests) => userQuests.user)
+  userQuests?: UserQuests[];
+
+  @OneToMany((type) => UserMissions, (userMissions) => userMissions.user)
+  userMissions?: UserMissions[];
+
+  @OneToMany(
+    (type) => UserGameInventories,
+    (userGameInventories) => userGameInventories.user
+  )
+  userGameInventories?: UserGameInventories[];
+
+  @OneToMany(
+    (type) => DailyLoginUsers,
+    (dailyLoginUsers) => dailyLoginUsers.user
+  )
+  dailyLoginUsers?: DailyLoginUsers[];
+
+  @OneToOne((type) => Affiliates, (affiliates) => affiliates.user)
+  affiliate?: Affiliates;
+
+  @OneToMany((type) => AffiliateUsers, (affiliateUsers) => affiliateUsers.user)
+  affiliateUsers!: AffiliateUsers[];
+
+  @OneToMany((type) => Transactions, (transactions) => transactions.user)
+  transactions?: Transactions[];
+
+  @OneToMany((type) => AdsLogs, (adsLogs) => adsLogs.user)
+  adsLogs?: AdsLogs[];
+
+  @OneToMany((type) => LuckyWheelSessions, (session) => session.user)
+  luckyWheelSessions?: LuckyWheelSessions[];
+
+  @OneToMany((type) => UserRevenues, (userRevenue) => userRevenue.user)
+  userRevenues!: UserRevenues[];
+
+  @OneToMany((type) => RaffleTickets, (raffleTickets) => raffleTickets.user)
+  raffleTickets!: RaffleTickets[];
+
+  @OneToMany(
+    (type) => RaffleParticipations,
+    (raffleParticipations) => raffleParticipations.user
+  )
+  participations!: RaffleParticipations[];
+
+  @OneToMany((type) => UserBanks, (bank) => bank.user)
+  userBanks!: UserBanks[];
+
+  @OneToMany((type) => UserBans, (banned) => banned.user)
+  bans!: UserBans[];
+
+  @OneToMany((type) => UserDevices, (device) => device.user)
+  userDevices!: UserDevices[];
+
+  @OneToMany((type) => UserWithdraws, (userWithdraw) => userWithdraw.user)
+  userWithdraws?: UserWithdraws[];
+
+  @OneToOne((type) => UserVerifications, (verification) => verification.user)
+  @JoinColumn({
+    name: "user_verification_id",
+  })
+  verification?: UserVerifications;
+
+  @OneToOne((type) => UserPins, (user_pin) => user_pin.user)
+  @JoinColumn({
+    name: "user_pin_id",
+  })
+  userPin?: UserPins;
+
+  @OneToMany(
+    (type) => OperatorPurchases,
+    (operatorPurchase) => operatorPurchase.user
+  )
+  purchaseOperators!: OperatorPurchases[];
+
+  @OneToMany((type) => UserFriends, (userFriend) => userFriend.owner)
+  userFriends!: UserFriends[];
+
+  @OneToMany((type) => UserFriends, (userFriend) => userFriend.friendDetail)
+  friends!: UserFriends[];
+
+  @OneToMany((type) => UserActivities, (userActivities) => userActivities.user)
+  activities!: UserActivities[];
+
+  @OneToMany((type) => InAppPurchases, (inAppPurchases) => inAppPurchases.user)
+  inAppPurchases!: InAppPurchases[];
+
+  @OneToMany((type) => UserVipQuests, (userVipQuests) => userVipQuests.user)
+  userVipQuests?: UserVipQuests[];
 }

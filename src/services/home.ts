@@ -25,7 +25,7 @@ export class HomeService extends BaseService{
         this.gameService        = new GameService(dbConn);
     }
 
-    public async getHomeBanners(event: APIGatewayEvent): Promise<Object[]> {
+    public async getHomeBanners(event: APIGatewayEvent): Promise<object[]> {
         const [banners, total] = await this.bannerService.getBanners(event);
         const mappedBanners = banners.map((banner) => {
             return {
@@ -39,7 +39,7 @@ export class HomeService extends BaseService{
         return mappedBanners;
     }
 
-    public async getHomeDailyQuest(user: Users): Promise<Object> {
+    public async getHomeDailyQuest(user: Users): Promise<object> {
         const userAllQuest = await this.questService.getUserQuestList(user.id);
         const claimedQuest = userAllQuest.filter((userQuest) => {
             return userQuest.is_claimed;
@@ -65,7 +65,7 @@ export class HomeService extends BaseService{
         };
     }
 
-    public async getHomeDailyLogin(userId: number): Promise<Object> {
+    public async getHomeDailyLogin(userId: number): Promise<object> {
         let dailyLoginUser = await this.dailyLoginService.getCurrentDailyLoginUser(userId);
 
         if (!dailyLoginUser) {
@@ -101,7 +101,7 @@ export class HomeService extends BaseService{
         return mapDailyLogin;
     }
 
-    public async getHomeCasualGames(userId: number): Promise<Object> {
+    public async getHomeCasualGames(userId: number): Promise<object> {
         const userMissions          = await this.missionService.getIncompleteMissionList(userId);
         const missionIds: number[]  = [];
         userMissions.forEach((userMission) => {

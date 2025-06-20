@@ -31,7 +31,7 @@ export class AdsLogService extends BaseService {
             logable_id      = schema.partner_ad_id;
         }
 
-        let store = await this.dbConn.getRepository(AdsLogs)
+        const store = await this.dbConn.getRepository(AdsLogs)
         .save({
             type        : schema.type,
             source_type : schema.source_type,
