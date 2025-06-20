@@ -1,34 +1,31 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 
 export const AppConfigsFillable = [
-    'config_key',
-    'config_value',
-    'is_active',
-    'is_public'
+  "config_key",
+  "config_value",
+  "is_active",
+  "is_public",
 ];
- 
-export const AppConfigsUpdateable = AppConfigsFillable
+
+export const AppConfigsUpdateable = AppConfigsFillable;
 
 @Entity()
 export class AppConfigs {
-    @PrimaryGeneratedColumn()
-    id!: number;
+  @Column({ type: "varchar", length: 100, primary: true })
+  config_key!: string;
 
-    @Column({ type: 'varchar', length: 100 })
-    config_key!: string;
-   
-    @Column({ type: 'text' })
-    config_value!: string;
+  @Column({ type: "text" })
+  config_value!: string;
 
-    @Column()
-    is_active?: boolean;
-    
-    @Column()
-    is_public?: boolean;
+  @Column()
+  is_active?: boolean;
 
-    @Column("timestamp")
-    created_at?: string;
+  @Column()
+  is_public?: boolean;
 
-    @Column("timestamp")
-    updated_at?: string;
+  @Column("timestamp")
+  created_at?: string;
+
+  @Column("timestamp")
+  updated_at?: string;
 }
